@@ -189,6 +189,10 @@ Schema::create('calendar_events', function (Blueprint $table) {
 - Timestamps should be `created_at` and `updated_at`
 - Soft-delete column should be `deleted_at`
 
+### Date & Time Column Naming
+
+For comprehensive rules on datetime columns, including naming patterns (`*_at`, `*_on`, `*_time`, `*_epoch`), storage requirements, and Carbon casting, see [Dates & Time Handling](./dates.md).
+
 ### Bad Practices (Avoid):
 
 - ❌ Compound foreign key names: `calendar_user_id_start_datetime`
