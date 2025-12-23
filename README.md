@@ -19,6 +19,7 @@ All developers working on the GRS project must read and follow these specificati
    - [Database Specifications](./sections/database.md) — Before writing migrations
    - [Code Structuring Specifications](./sections/code-structure.md) — Before creating new modules or classes
    - [Dates & Time Handling](./sections/dates.md) — When working with dates and timezones
+   - [Testing Specifications](./sections/testing.md) — When writing tests with Pest
 
 ## Key Principles
 

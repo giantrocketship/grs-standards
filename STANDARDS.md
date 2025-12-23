@@ -38,6 +38,7 @@ This specification is split into multiple focused chapters. Each chapter is auth
 - [Database Specifications](./sections/database.md)
 - [Code Structuring Specifications](./sections/code-structure.md)
 - [Dates & Time Handling](./sections/dates.md)
+- [Testing Specifications](./sections/testing.md)
 
 Each linked document **must be read and followed** when working within its respective area.
 
@@ -114,5 +115,6 @@ Developers should begin by reviewing:
 1. Database Specifications
 2. Code Structuring Specifications
 3. Dates & Time Handling
+4. Testing Specifications
 
 Additional chapters will be introduced as the project evolves.
