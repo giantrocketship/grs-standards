@@ -2,11 +2,9 @@
 
 ## Overview
 
-Testing is a critical part of our development process. This document defines the standards for writing tests in the GRS project using **Laravel Pest**.
+Testing standards for GRS using **Pest**.
 
-All tests must be written following these specifications to ensure consistency, maintainability, and reliability across the codebase.
-
-**Documentation Reference**: [Pest Documentation](https://pestphp.com/docs/getting-started)
+All tests must follow these rules for consistency and reliability.
 
 ---
 
@@ -14,41 +12,24 @@ All tests must be written following these specifications to ensure consistency, 
 
 ### Unit Tests
 
-**Purpose**: Test individual components in isolation without external dependencies.
-
-**Characteristics**:
-- Do not hit the database
-- Do not make HTTP requests
-- Focus on a single function or method
-- Fast execution
-
-**Location**: `tests/Unit/`
+- No DB
+- No HTTP
+- Single method/function focus
+- Location: `tests/Unit/`
 
 ### Feature Tests
 
-**Purpose**: Test application features at the HTTP level without testing the entire end-to-end flow.
-
-**Characteristics**:
-- Make HTTP requests to application endpoints
-- May access the database
-- Refresh database between tests
-- Test a single feature or workflow
-- Smaller scope than integration tests
-
-**Location**: `tests/Feature/`
+- HTTP-level features
+- May hit DB
+- Smaller scope than integration
+- Location: `tests/Feature/`
 
 ### Integration Tests
 
-**Purpose**: Test end-to-end workflows involving multiple components, services, and systems.
-
-**Characteristics**:
-- Test complete user journeys
-- Span multiple features or modules
-- Refresh database between tests
-- Larger scope than feature tests
+- End-to-end workflows
+- Cross-module behavior
 - May involve external services
-
-**Location**: `tests/Integration/`
+- Location: `tests/Integration/`
 
 ---
 
@@ -56,28 +37,14 @@ All tests must be written following these specifications to ensure consistency, 
 
 ### Preferred Syntax
 
-**Prefer `test()` for defining test cases**:
-
-```php
-test('user can create a new article', function () {
-    // test code
-});
-```
-
-You may use `it()` as an alternative, but `test()` is preferred across the codebase:
-
-```php
-// Acceptable, but test() is preferred
-it('user can create a new article', function () {
-    // test code
-});
-```
+- Prefer `test()` for defining cases
+- `it()` is allowed but `test()` is the default style
 
 ---
 
 ## External HTTP Calls
 
-When a test makes real HTTP calls to external services (not your application), it **must** be labeled with the `external` group:
+When a test makes real HTTP calls to external services (not the app), it **must** be labeled with the `external` group:
 
 ```php
 test('fetches data from external API', function () {
@@ -91,11 +58,8 @@ This allows external tests to be skipped or run separately.
 
 ## Test Datasets
 
-Reusable test data should be stored in dataset files following Pest conventions.
-
-**Location**: `tests/Datasets/FeatureNameDataset.php`
-
-**Example**:
+- Reusable datasets live in `tests/Datasets/*Dataset.php`
+- Name datasets descriptively (e.g. `valid articles`, `invalid articles`)
 
 ```php
 // tests/Datasets/ArticleDataset.php
@@ -126,24 +90,11 @@ dataset('invalid articles', [
 ]);
 ```
 
-**Usage**:
-
-```php
-test('creates article with valid data', function (array $data) {
-    $response = postJson('/articles', $data);
-    $response->assertSuccessful();
-})->with('valid articles');
-```
-
 ---
 
 ## Controller Testing
 
-When testing controllers, follow these conventions:
-
 ### HTTP Test Functions
-
-Use Pest's built-in HTTP functions for making requests with `action()`:
 
 ```php
 test('user can create a post', function () {
@@ -169,8 +120,6 @@ test('unauthenticated user is forbidden', function () {
 
 ### Action Testing
 
-When testing controller methods directly, use `action()` with the controller class and method name:
-
 ```php
 test('user controller returns users', function () {
     $response = $this->get(action([UserController::class, 'index']));
@@ -189,7 +138,7 @@ test('user controller stores user', function () {
 
 ### Forbidden Patterns
 
-**Do not use `route()` function** for testing:
+**Do not use `route()`** in tests:
 
 ```php
 // ❌ Don't do this
@@ -255,20 +204,16 @@ test('handler processes ticket with mocked services', function () {
 });
 ```
 
-**Key Points**:
-- Use `Mockery::mock()` to create mocks
-- Use `shouldReceive()` to define mock expectations
-- Use `andReturn()` to specify return values
-- Always verify the behavior you care about
-- Clean up mocks in tearDown or use Mockery's automatic cleanup
+Key points:
+- Use `Mockery::mock()`
+- Use `shouldReceive()` / `andReturn()`
+- Assert the behavior that matters
 
 ---
 
 ## HTTP Request Mocking
 
-When testing code that makes HTTP requests to external services, use Laravel's `Http::fake()` to mock the responses without making real network calls.
-
-### Basic HTTP Mocking
+When testing code that makes HTTP requests to external services, use `Http::fake()`.
 
 ```php
 use Illuminate\Support\Facades\Http;
@@ -290,8 +235,6 @@ test('fetches user data from external API', function () {
 
 ### Asserting Requests Were Sent
 
-Verify that your code made the expected HTTP requests:
-
 ```php
 test('sends correct request to external API', function () {
     Http::fake([
@@ -306,8 +249,6 @@ test('sends correct request to external API', function () {
     );
 });
 ```
-
-### Mocking Multiple Endpoints
 
 ```php
 test('handles multiple external API calls', function () {
@@ -328,8 +269,6 @@ test('handles multiple external API calls', function () {
 });
 ```
 
-### Asserting Request Count
-
 ```php
 test('makes correct number of API calls', function () {
     Http::fake();
@@ -339,8 +278,6 @@ test('makes correct number of API calls', function () {
     Http::assertSentCount(10);
 });
 ```
-
-### Testing Error Responses
 
 ```php
 test('handles API errors gracefully', function () {
@@ -357,12 +294,10 @@ test('handles API errors gracefully', function () {
 });
 ```
 
-**Key Points**:
+Key points:
 - Use `Http::fake()` to prevent real network requests
-- Use wildcard patterns (`*`) for dynamic endpoints
-- Assert requests with `Http::assertSent()` to verify correct API calls
-- Use `Http::assertSentCount()` to verify the number of requests
-- Return appropriate HTTP status codes to test error handling
+- Use wildcards (`*`) for dynamic endpoints
+- Use `Http::assertSent()` and `Http::assertSentCount()`
 
 ---
 
@@ -404,7 +339,7 @@ test('creates article in database', function () {
 });
 ```
 
-Database is automatically refreshed between tests — no manual cleanup needed.
+Database is automatically refreshed between tests.
 
 ---
 
@@ -450,13 +385,12 @@ test('throws exception for invalid input', function () {
 
 ## Summary
 
-- Use `test()` for all test functions
-- Organize tests by type: Unit, Feature, Integration
-- Use `expect()` for all assertions
-- Use `action()` and HTTP functions for controller testing
-- Label external HTTP calls with `external` group
-- Use datasets in `tests/Datasets/` for reusable test data
-- Follow Mockery conventions for mocking dependencies
-- Use `Http::fake()` to mock external HTTP requests
-- Assert HTTP requests with `Http::assertSent()` and `Http::assertSentCount()`
+- Prefer `test()`
+- Organize by type: Unit, Feature, Integration
+- Use `expect()` over `$this->assert*()`
+- Use `action()` and HTTP helpers for controllers
+- Group external HTTP tests with `external`
+- Keep datasets in `tests/Datasets/`
+- Use Mockery for dependencies
+- Use `Http::fake()` + `Http::assertSent*()` for external HTTP
 - Keep tests focused and isolated

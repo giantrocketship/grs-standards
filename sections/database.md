@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document defines the database design conventions and standards for the project. All database migrations, schemas, and relationships must follow these rules strictly.
+Database design conventions for GRS. All migrations, schemas, and relationships must follow these rules.
 
 ---
 
@@ -10,24 +10,21 @@ This document defines the database design conventions and standards for the proj
 
 ### Module-Based Prefixes
 
-Each module has its own namespace and tables must use a module-specific prefix. This ensures clarity and prevents naming collisions.
+Tables must use a module prefix:
 
-**Example:**
-- Calendar module: `calendar_credentials`, `calendar_sync_states`, `calendar_sync_logs`
-- Email module: `email_templates`, `email_schedules`
-- CRM module: `crm_contacts`, `crm_deals`
+- Calendar: `calendar_credentials`, `calendar_sync_states`, `calendar_sync_logs`
+- Email: `email_templates`, `email_schedules`
+- CRM: `crm_contacts`, `crm_deals`
 
 ---
 
 ## Account as Tenant
 
-The `account` model serves as the central tenant structure for the application.
+Rules:
 
-### Rules:
-
-1. **All tables must include `account_id`** — even if the relationship is indirect or denormalized
-2. **Use `account_id`, never `tenant_id`** — this is consistent across the entire codebase
-3. **Foreign key to accounts table is required** for data isolation and cascading behavior
+1. **All tables include `account_id`** — even when denormalized
+2. **Use `account_id`, never `tenant_id`**
+3. `account_id` always has a foreign key to `accounts`
 
 ### Example:
 
@@ -44,10 +41,6 @@ Schema::create('calendar_sync_logs', function (Blueprint $table) {
 ---
 
 ## Foreign Keys
-
-### Strict Laravel Conventions
-
-Always use the modern Laravel fluent syntax for foreign keys. Never use legacy `references()` and `on()` methods.
 
 ### Default Behavior:
 
@@ -83,15 +76,13 @@ $table->foreignId('supervisor_id')->nullable()->constrained('users')->nullOnDele
 
 ## Indexes
 
-### When to Index
+Add indexes to:
+- Foreign keys
+- Frequent WHERE/JOIN/ORDER BY columns
+- Search/filter fields
+- Compound query keys
 
-Add indexes to columns that are:
-- Foreign keys (automatically indexed in most cases)
-- Frequently used in WHERE, JOIN, or ORDER BY clauses
-- Searchable or filterable fields
-- Part of compound queries
-
-### Syntax:
+Preferred syntax:
 
 ```php
 $table->string('email')->unique();
@@ -100,31 +91,21 @@ $table->foreignId('account_id')->constrained()->cascadeOnDelete();
 $table->string('status')->index();
 ```
 
-### Rules:
+Rules:
 
-- Use `->index()` on individual columns that need indexing
-- Use `->unique()` on columns that must be unique
+- Use `->index()` on individual columns
+- Use `->unique()` where required
 - Use `->nullable()->index()` for optional indexed columns
-- **Never specify custom index names** — let Laravel generate them automatically
-- **Never use old syntax**: `$table->index(['column'], 'custom_index_name')`
+- Do not specify custom index names
+- Do not use legacy index syntax
 
 ---
 
 ## Enums
 
-### Database Enums are Prohibited
+**Never use database enums** (no MySQL `ENUM`, no Laravel `enum()` columns).
 
-**Never use database enums** (MySQL ENUM type or Laravel's `enum()` column type).
-
-### Why:
-
-- Database enums are inflexible and difficult to modify
-- They create coupling between database and application logic
-- Testing and migrations become problematic
-
-### Solution:
-
-Use string or integer columns with validation against application-level enums:
+Use strings/ints validated against application-level enums:
 
 **Application Enum (app/Enums/SyncStatus.php):**
 ```php
@@ -153,14 +134,12 @@ $validated = $request->validate([
 
 ## Denormalization
 
-Denormalization is allowed when it serves a clear performance or practical purpose.
+Rules:
 
-### Rules:
-
-- You may add `account_id` to any table even if the relationship is indirect
-- Document why denormalization was chosen (comment in migration or commit message)
-- Only denormalize when it prevents expensive joins or provides significant performance benefit
-- Maintain data integrity constraints (foreign keys) even for denormalized fields
+- You may add `account_id` anywhere it simplifies queries
+- Document denormalization decisions (migration comment or commit)
+- Only denormalize for clear performance/operational benefit
+- Keep foreign key constraints even on denormalized fields
 
 ### Example:
 
@@ -181,26 +160,26 @@ Schema::create('calendar_events', function (Blueprint $table) {
 
 ## Column Naming
 
-### Conventions:
+Conventions:
 
-- Use `snake_case` for all column names
-- Foreign keys should follow the pattern `{table}_id` (singular table name)
-- Boolean columns should be prefixed with `is_` (e.g., `is_active`, `is_deleted`)
-- Timestamps should be `created_at` and `updated_at`
-- Soft-delete column should be `deleted_at`
+- `snake_case` only
+- Foreign keys: `{table}_id` (singular table name)
+- Booleans: `is_*` (e.g., `is_active`, `is_deleted`)
+- Timestamps: `created_at`, `updated_at`
+- Soft deletes: `deleted_at`
 
 ### Date & Time Column Naming
 
-For comprehensive rules on datetime columns, including naming patterns (`*_at`, `*_on`, `*_time`, `*_epoch`), storage requirements, and Carbon casting, see [Dates & Time Handling](./dates.md).
+For naming patterns (`*_at`, `*_on`, `*_time`, `*_epoch`) and storage rules, see [Dates & Time Handling](./dates.md).
 
-### Bad Practices (Avoid):
+Bad practices (avoid):
 
-- ❌ Compound foreign key names: `calendar_user_id_start_datetime`
-- ❌ Camel case: `createdAt`, `userId`
-- ❌ Abbreviations: `usr_id`, `acct_id`
-- ❌ Custom naming schemes
+- Compound foreign key names: `calendar_user_id_start_datetime`
+- CamelCase: `createdAt`, `userId`
+- Abbreviations: `usr_id`, `acct_id`
+- Custom naming schemes
 
-### Good Practices:
+Good example:
 
 ```php
 $table->id();
@@ -216,25 +195,21 @@ $table->timestamps();
 
 ## Column Clarity & Aggregation
 
-### Aggregation Suffixes
+Aggregation suffixes:
 
-When a column holds aggregated data (counts, sums, averages, etc.), use clear suffixes to indicate the operation:
+- `_count` — counts (`events_synced_count`)
+- `_sum` — sums (`revenue_sum`)
+- `_avg` — averages (`rating_avg`)
+- `_min` — minimums (`price_min`)
+- `_max` — maximums (`price_max`)
 
-- `_count` — number of items (e.g., `events_synced_count`)
-- `_sum` — total sum (e.g., `revenue_sum`)
-- `_avg` — average value (e.g., `rating_avg`)
-- `_min` — minimum value (e.g., `price_min`)
-- `_max` — maximum value (e.g., `price_max`)
-
-**Why:** Ambiguous column names like `events_synced` could be JSON data, a count, or actual event records. Always be explicit.
-
-**Good Examples:**
+Good examples:
 ```php
 $table->integer('events_synced_count')->default(0);
 $table->unsignedInteger('user_count')->default(0);
 ```
 
-**Bad Examples:**
+Bad examples:
 ```php
 $table->integer('events_synced'); // Unclear: count? JSON? Event IDs?
 $table->integer('revenue');        // Could be sum, average, or single value
@@ -244,15 +219,9 @@ $table->integer('revenue');        // Could be sum, average, or single value
 
 ## External IDs
 
-### External ID Naming
+Use `ext_id` for any identifier from an external system:
 
-For columns that store identifiers from external systems or third-party services, always use `ext_id`:
-
-**Rule:** Use `ext_id` for any external identifier, regardless of the source system.
-
-**Why:** This makes it immediately clear that a column contains data from an external system, not a local database reference.
-
-**Examples:**
+Example:
 ```php
 $table->string('ext_id')->nullable();  // External ID from third-party system
 ```
@@ -263,15 +232,11 @@ $table->string('ext_id')->nullable();  // External ID from third-party system
 
 ### Rule: Never Expose Database IDs Publicly
 
-**Internal Code & Services:** Use `id` (the auto-increment primary key) for internal service-to-service communication.
-
-**Public-Facing Interfaces:** Always reference records by `uuid` instead of `id`. Never expose database IDs to:
+Internal code uses `id`. Public-facing interfaces use `uuid` instead of `id`:
 - REST APIs
 - Admin portals
 - User-facing applications
 - Third-party integrations
-
-**Why:** Database IDs are predictable, sequential, and reveal information about system scale. UUIDs are non-sequential, non-guessable, and safe to expose.
 
 ### Implementation
 

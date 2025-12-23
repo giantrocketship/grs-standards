@@ -2,22 +2,22 @@
 
 ## Overview
 
-Proper date and time handling is critical for multi-timezone applications. This specification ensures consistency, prevents bugs, and maintains data integrity across the entire system.
+GRS date/time rules for multi-timezone behavior and storage.
 
 ---
 
 ## Core Principles
 
-1. **Always store UTC** — All datetimes in the database are stored as UTC
-2. **Always use Carbon** — Use `Illuminate\Carbon\Carbon` or `Illuminate\Carbon\CarbonImmutable` instead of native PHP `DateTime`
-3. **Timezone awareness** — Convert to user timezone only for display/input
-4. **Immutables when necessary** — Use `CarbonImmutable` for event-based data
+1. **Always store UTC** in the database
+2. **Use Carbon/CarbonImmutable**, not native `DateTime`
+3. **Convert to user timezone only at the edges** (input/output)
+4. **Use CarbonImmutable** for event-like, immutable data
 
 ---
 
 ## Column Naming Conventions
 
-Use these naming patterns consistently across all tables:
+Use these naming patterns across all tables:
 
 | Pattern | Type | Example | Usage |
 |---------|------|---------|-------|
@@ -50,44 +50,8 @@ $table->unsignedBigInteger('created_epoch')->nullable();
 
 ## Using Carbon
 
-### Always Import Carbon
-
-```php
-use Illuminate\Support\Carbon;
-// or for immutable:
-use Illuminate\Support\Carbon\CarbonImmutable;
-```
-
-### Mutable vs Immutable
-
-**Use `Carbon` (mutable) for:**
-- Business logic where state changes are expected
-- Calculations and transformations
-- Legacy code compatibility
-
-**Use `CarbonImmutable` for:**
-- Domain events
-- Value objects
-- Event sourcing scenarios
-- Data that should not be modified
-
-### Creating Carbon Instances
-
-```php
-// Parse from string
-$carbon = Carbon::parse('2025-12-23 14:30:00');
-
-// From timestamp
-$carbon = Carbon::createFromTimestamp(1703334600);
-
-// Now (current UTC time)
-$now = Carbon::now('UTC');
-// or simply
-$now = Carbon::now();
-
-// Specific date/time
-$carbon = Carbon::create(2025, 12, 23, 14, 30, 0, 'UTC');
-```
+- Import `Illuminate\Support\Carbon` (and `CarbonImmutable` where needed)
+- Prefer `Carbon` for regular business logic; `CarbonImmutable` for domain events/value objects
 
 ---
 
@@ -95,7 +59,7 @@ $carbon = Carbon::create(2025, 12, 23, 14, 30, 0, 'UTC');
 
 ### Always Store UTC
 
-Every datetime column in the database must contain UTC time, **never** local timezone.
+Every datetime column in the database is UTC, never local.
 
 ```php
 // ✅ CORRECT: Always store as UTC
@@ -109,7 +73,7 @@ $model->expires_at = Carbon::now('Europe/London')->addDays(30);
 
 ### Casting to Carbon
 
-Ensure all datetime columns are cast to Carbon in your models:
+Ensure all datetime columns are cast to Carbon in models:
 
 ```php
 class Calendar extends Model
@@ -143,7 +107,7 @@ class Event extends Model
 
 ### Convert on Output Only
 
-Never store user timezone in the database. Always convert when displaying:
+Do not store user timezone in datetime columns; convert only when displaying:
 
 ```php
 // In a model or transformer
@@ -164,7 +128,7 @@ return [
 
 ### User Timezone Storage
 
-Store user timezone preference as a string, not derived from the app:
+Store user timezone preference as a string (e.g. `America/New_York`):
 
 ```php
 class User extends Model
@@ -323,7 +287,7 @@ $table->time('end_time')->nullable();
 
 ## Soft Deletes with Timestamps
 
-When using soft deletes, the `deleted_at` column follows the same UTC rules:
+`deleted_at` follows the same UTC rules:
 
 ```php
 use Illuminate\Database\Eloquent\SoftDeletes;

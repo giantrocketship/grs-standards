@@ -2,101 +2,66 @@
 
 ## Overview
 
-This document defines the directory structure, file organization, and naming conventions for the application. Following these conventions ensures consistency, maintainability, and predictability across the codebase.
+Directory structure, file organization, and naming conventions specific to GRS.
 
 ---
 
 ## Core Principle: Use Artisan Make Commands
 
-**Never create files by hand.** Always use Laravel's `php artisan make:*` commands to scaffold new classes. This ensures:
+**Never create classes by hand.** Use `php artisan make:*` so:
 
-- Correct file structure and namespacing
-- Proper base classes and traits
-- Consistency across the project
-- Automatic service provider registration (where applicable)
-
-### Available Make Commands:
-
-Discover all available make commands and their options:
-
-```bash
-php artisan make --help
-```
+- Paths and namespaces follow Laravel
+- Base classes/traits are correct
+- Names are consistent across the project
 
 ---
 
 ## Directory Structure Overview
 
+Only the high-level layout is standardized:
+
 ```
 app/
-├── Casts/              # Custom model casts
-├── Contracts/          # Core interfaces and contracts
-├── DTO/               # Data Transfer Objects
-├── Enums/              # Application enums
-├── Exceptions/         # Custom exceptions
+├── Casts/
+├── Contracts/
+├── DTOs/
+├── Enums/
+├── Exceptions/
 ├── Http/
 │   ├── Controllers/
-│   ├── Requests/       # Form requests
-│   └── Resources/      # API resources
-├── Jobs/               # Queued jobs
-├── Models/             # Eloquent models
-├── Policies/           # Authorization policies
-└──Services/           # Business logic services
+│   ├── Requests/
+│   └── Resources/
+├── Jobs/
+├── Models/
+├── Policies/
+└── Services/
 ```
 
 ---
 
 ## Module-Based Organization
 
-For features or modules, organize related files into nested folders under their respective directories.
+Group by module under each directory.
 
-### Example: Triage Module
+Example pattern (Triage):
 
 ```
 app/
-├── Casts/
-│   └── Triage/
-│       └── StatusCast.php
-├── DTO/
-│   └── Triage/
-│       ├── TriageData.php
-│       └── AssignmentResult.php
-├── Enums/
-│   └── Triage/
-│       ├── TriageStatus.php
-│       └── PriorityEnum.php
-├── Exceptions/
-│   └── Triage/
-│       └── InvalidTriageStateException.php
+├── DTOs/Triage/TriageData.php
+├── Enums/Triage/TriageStatus.php
+├── Exceptions/Triage/InvalidTriageStateException.php
 ├── Http/
-│   ├── Controllers/
-│   │   └── TriageController.php
-│   ├── Requests/
-│   │   └── Triage/
-│   │       ├── StoreTriageRequest.php
-│   │       └── UpdateTriageRequest.php
-│   └── Resources/
-│       └── Triage/
-│           └── TriageResource.php
-├── Jobs/
-│   └── Triage/
-│       ├── ProcessTriageJob.php
-│       └── SendTriageNotificationJob.php
-├── Models/
-│   └── Triage/
-│       ├── Triage.php
-│       └── TriageAssignment.php
-├── Policies/
-│   └── Triage/
-│       └── TriagePolicy.php
-└── Services/
-    └── Triage/
-        ├── TriageService.php
-        ├── AssignmentService.php
-        ├── Contracts/
-        │   └── TriageRepositoryContract.php
-        └── Traits/
-            └── HasTriageStatus.php
+│   ├── Controllers/TriageController.php
+│   ├── Requests/Triage/StoreTriageRequest.php
+│   └── Resources/Triage/TriageResource.php
+├── Jobs/Triage/ProcessTriageJob.php
+├── Models/Triage/Triage.php
+├── Policies/Triage/TriagePolicy.php
+└── Services/Triage/
+    ├── TriageService.php
+    ├── AssignmentService.php
+    ├── Contracts/TriageRepositoryContract.php
+    └── Traits/HasTriageStatus.php
 ```
 
 ---
@@ -126,10 +91,10 @@ Always add appropriate suffixes to class files for clarity:
 
 ### Exclusions (No Suffix Required)
 
-- **Models** — Use simple name: `Triage.php`, not `TriageModel.php`
-- **Enums** — Can be simple name: `TriageStatus.php`
-- **DTOs** — Use simple name or suffixes: `TriageData.php` or `TriageResult.php`
-- **Actions** — Use action verb if readable: `ProcessTriage.php`
+- **Models** — `Triage.php`, not `TriageModel.php`
+- **Enums** — `TriageStatus.php` is fine
+- **DTOs** — `TriageData.php` or `TriageResult.php`
+- **Actions** — Verb-style names like `ProcessTriage.php`
 
 ---
 
@@ -137,16 +102,12 @@ Always add appropriate suffixes to class files for clarity:
 
 ### Models (`app/Models/`)
 
-Store Eloquent models here, organized by module.
-
 **Guidelines:**
-- Use module subdirectories for feature-specific models
-- Keep model code focused on relationships and scopes
-- Move complex business logic to services
+- Use module subdirectories
+- Keep models focused on relationships, casts, scopes
+- Move business logic to services
 
 ### Enums (`app/Enums/`)
-
-Store application-level enums (never database enums).
 
 ```php
 // app/Enums/Triage/TriageStatus.php
@@ -167,70 +128,24 @@ enum TriageStatus: string
 
 ### Casts (`app/Casts/`)
 
-Custom model attribute casts.
-
 **Guidelines:**
 - Use the `Cast` suffix
 - Organize by module
-- Register in model via `$casts` property
+- Register via model `$casts`
 
 ### DTOs (`app/DTOs/`)
 
-Data Transfer Objects using **Spatie Laravel Data** for type-safe, validated data structures.
-
-**Never build custom DTO classes.** Always use Spatie Laravel Data for consistency, validation, transformation, and casting.
-
-#### Documentation & Examples
-
-For comprehensive documentation on using Spatie Laravel Data, including basic definitions, validation, enums, casting, creating from requests/models, collections, transformations, and nested DTOs, refer to the official documentation:
-
-**[Spatie Laravel Data Documentation](https://spatie.be/docs/laravel-data/v4/introduction)**
-
-Key features include:
-- Type-safe property declarations
-- Built-in validation with attributes
-- Automatic enum and cast handling
-- Creating DTOs from requests, models, and arrays
-- Collections and transformations
-- Nested and complex data structures
+DTOs are always Spatie Laravel Data objects.
 
 **Guidelines:**
-- **Always use Spatie Laravel Data** — never build custom DTO classes
+- **Always use Spatie Laravel Data**; do not hand-roll DTOs
 - Organize by module: `app/DTOs/Triage/`, `app/DTOs/Calendar/`, etc.
-- Suffix is optional: `TriageData.php` or `CreateTriageData.php`
-- Use validation attributes for request validation
+- Suffix is optional: `TriageData.php`, `CreateTriageData.php`
+- Use attributes for validation
 - Use `from()` to create DTOs from requests/models
-- Leverage automatic casting with enums and custom casts
-- Use for API requests/responses and service layer
-- Keep DTOs focused on data structure, not business logic
+- Use DTOs at API and service boundaries; no business logic inside
 
 ### Jobs (`app/Jobs/`)
-
-Queued jobs for async processing.
-
-```bash
-php artisan make:job Triage/ProcessTriageJob
-```
-
-```php
-// app/Jobs/Triage/ProcessTriageJob.php
-namespace App\Jobs\Triage;
-
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
-
-class ProcessTriageJob implements ShouldQueue
-{
-    use Queueable;
-
-    public function __construct(private int $triageId) {}
-
-    public function handle(): void
-    {
-        // Job logic
-    }
-}
-```
 
 **Guidelines:**
 - Use the `Job` suffix
@@ -239,16 +154,12 @@ class ProcessTriageJob implements ShouldQueue
 
 ### Exceptions (`app/Exceptions/`)
 
-Custom exception classes.
-
 **Guidelines:**
 - Use the `Exception` suffix
 - Organize by module
-- Provide meaningful error messages and context
+- Provide meaningful messages and context
 
 ### Policies (`app/Policies/`)
-
-Authorization policies for models.
 
 **Guidelines:**
 - Use the `Policy` suffix
@@ -258,91 +169,47 @@ Authorization policies for models.
 
 ### Services (`app/Services/`)
 
-Business logic layer for complex operations.
-
 **Guidelines:**
 - Use the `Service` suffix
 - Organize by module
 - Inject dependencies via constructor
-- Keep services focused on a single responsibility
-- Use DTOs for data transfers
+- Single responsibility per service
+- Use DTOs for data transfer
 - Dispatch jobs for async work
 
 ### Contracts/Interfaces (`app/Contracts/` or `app/Services/Module/Contracts/`)
 
-Define contracts for abstraction and testing.
-
 **Guidelines:**
-- Use `Interface` suffix for clarity: `TriageRepositoryInterface.php`
+- Use `Interface` suffix: `TriageRepositoryInterface.php`
 - Core/global contracts in `app/Contracts/`
 - Module-specific contracts in `app/Services/Module/Contracts/`
 - Bind interfaces to implementations in service providers
 
 ### Traits (`app/Traits/` or `app/Services/Module/Traits/`)
 
-Reusable functionality across classes.
-
-```php
-// app/Services/Triage/Traits/HasTriageStatus.php
-namespace App\Services\Triage\Traits;
-
-use App\Enums\Triage\TriageStatus;
-
-trait HasTriageStatus
-{
-    public function isPending(): bool
-    {
-        return $this->status === TriageStatus::PENDING;
-    }
-
-    public function isCompleted(): bool
-    {
-        return $this->status === TriageStatus::COMPLETED;
-    }
-}
-```
-
 **Guidelines:**
 - Use the `Trait` suffix
 - Global traits in `app/Traits/`
-- Module-specific traits in `app/Services/Module/Traits/`
-- Keep traits focused on a single concern
+- Module traits in `app/Services/Module/Traits/`
+- Single, focused concern per trait
 
 ### Form Requests (`app/Http/Requests/`)
-
-Validation and authorization for requests.
-
-```bash
-php artisan make:request Triage/StoreTriageRequest
-```
 
 **Guidelines:**
 - Use the `Request` suffix
 - Organize by module
-- Include authorization logic in `authorize()` method
-- Use enums with `Rule::enum()` for validation
+- Put authorization in `authorize()`
+- Use enums with `Rule::enum()`
 
 ### Resources (`app/Http/Resources/`)
-
-API response transformation.
-
-```bash
-php artisan make:resource Triage/TriageResource
-```
 
 **Guidelines:**
 - Use the `Resource` suffix
 - Organize by module
-- Always use ISO 8601 for dates
-- Transform data for consistent API responses
+- Use ISO 8601 for dates
+- Transform to a consistent API shape
 
 ### Controllers (`app/Http/Controllers/`)
-
-HTTP request handling.
-
-```bash
-php artisan make:controller Triage/TriageController --resource
-```
 
 **Guidelines:**
 - Use the `Controller` suffix
@@ -357,73 +224,12 @@ php artisan make:controller Triage/TriageController --resource
 
 ### Fail Loudly, Never Silently
 
-Code must fail **loudly and immediately** when something goes wrong. Silent failures lead to subtle bugs and data corruption.
+Code must fail **loudly and immediately** when something goes wrong.
 
-**Rule:** Never suppress errors or default values that could mask problems.
-
-**Bad Examples:**
-```php
-// ❌ Silent failure: Swallows exception
-try {
-    $user = User::findOrFail($id);
-} catch (ModelNotFoundException $e) {
-    $user = null; // Silently returns null
-}
-
-// ❌ Silent default: Could hide bugs
-$status = $data['status'] ?? 'pending'; // What if status is required?
-
-// ❌ No validation: Fails silently later
-$this->userId = $input['user_id']; // What if it's missing or invalid?
-```
-
-**Good Examples:**
-```php
-// ✅ Fail loudly: Throws exception immediately
-$user = User::findOrFail($id); // Throws ModelNotFoundException
-
-// ✅ Explicit validation: Requires intent
-throw_if(! isset($data['status']), InvalidArgumentException::class);
-
-// ✅ Type validation: Catches mismatches early
-public function setUserId(int $id): void
-{
-    // Type hint forces correct input
-    $this->userId = $id;
-}
-```
-
-### Never Default Values That Hide Failures
-
-**Rule:** Never provide default values for required data if they could allow code to continue in an invalid state.
-
-**Bad Examples:**
-```php
-// ❌ Missing account_id defaults to 0 (invalid)
-$accountId = $request->input('account_id', 0);
-
-// ❌ Empty string defaults that cause bugs later
-$email = $request->input('email', '');
-
-// ❌ Silent null defaults for required fields
-$name = $data['name'] ?? '';
-```
-
-**Good Examples:**
-```php
-// ✅ Fail if required field is missing
-$accountId = $request->validate(['account_id' => 'required|integer']);
-
-// ✅ Use exceptions for required data
-$email = $request->input('email')
-    ?? throw new InvalidArgumentException('Email is required');
-
-// ✅ Type checking prevents silent failures
-public function __construct(private int $accountId, private string $email)
-{
-    // Constructor guarantees valid data
-}
-```
+**Rules:**
+- Do not swallow exceptions or return "safe" but invalid values
+- Do not add defaults for required data
+- Prefer validation and typed constructors over nullable state
 
 ---
 
@@ -431,54 +237,13 @@ public function __construct(private int $accountId, private string $email)
 
 ### Avoid Singletons in Service Providers
 
-Due to Octane's request isolation model, never use singletons that persist state across requests.
+**Rules:**
+- Do not register stateful services as singletons
+- Prefer per-request bindings and constructor injection
 
-```php
-// ❌ WRONG: Singleton persists state across requests
-app()->singleton(CacheService::class, function () {
-    return new CacheService();
-});
+### Don't Store Request Data on Long-Lived Services
 
-// ✅ CORRECT: Bind without singleton
-app()->bind(CacheService::class, function () {
-    return new CacheService();
-});
-
-// ✅ CORRECT: Use dependency injection instead
-public function __construct(private CacheService $cache) {}
-```
-
-### Don't Store Data in Class Properties
-
-Never store request-specific data in class properties that persist.
-
-```php
-// ❌ WRONG: Data persists across requests in Octane
-class UserService
-{
-    private $userId; // Wrong!
-
-    public function setUserId($id)
-    {
-        $this->userId = $id;
-    }
-}
-
-// ✅ CORRECT: Pass data as parameters
-class UserService
-{
-    public function getUserData($userId)
-    {
-        // Logic
-    }
-}
-
-// ✅ CORRECT: Use constructor injection for dependencies
-class UserService
-{
-    public function __construct(private UserRepository $repository) {}
-}
-```
+**Rule:** No request-specific state on services that may be reused between requests; pass that data into methods instead.
 
 ---
 

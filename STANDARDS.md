@@ -1,6 +1,6 @@
 # Core Principles & Standards
 
-This document outlines the guiding principles and quality standards for the GRS project. For navigation and setup guidance, refer to [README.md](./README.md).
+Guiding principles and quality standards for GRS. For navigation, see [README.md](./README.md).
 
 ---
 
@@ -10,7 +10,7 @@ This document outlines the guiding principles and quality standards for the GRS 
 - Follow **Laravel conventions first**, project conventions second
 - Avoid premature abstraction
 - Code must be production-ready, testable, and maintainable
-- Performance considerations are mandatory due to Octane usage
+- Always consider Octane performance characteristics
 
 ---
 
@@ -20,8 +20,8 @@ This documentation:
 
 - Defines **project-specific rules**
 - Overrides personal preferences
-- Supplements Laravel documentation
-- Evolves over time as the project grows
+- Supplements Laravel docs rather than restating them
+- Evolves as the project grows
 
 Any deviation from these specifications **must be explicitly discussed and approved**.
 

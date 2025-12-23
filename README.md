@@ -1,32 +1,32 @@
 # GRS Standards
 
-Technical specifications and standards for the GRS project.
+Technical standards for the GRS project.
 
 ## Overview
 
-This repository contains the authoritative technical documentation for the GRS application. It defines standards for:
+Authoritative project standards for GRS, covering:
 
 - **Database design** — Table naming, foreign keys, indexes, and constraints
 - **Code structure** — Project organization, naming conventions, and architectural patterns
 - **Dates & time handling** — Timezone management and temporal data practices
 
-All developers working on the GRS project must read and follow these specifications.
+All GRS developers must follow these specifications.
 
 ## Quick Start
 
-1. **Read the main specification**: [STANDARDS.md](./STANDARDS.md)
-2. **Review the relevant section**:
-   - [Database Specifications](./sections/database.md) — Before writing migrations
-   - [Code Structuring Specifications](./sections/code-structure.md) — Before creating new modules or classes
-   - [Dates & Time Handling](./sections/dates.md) — When working with dates and timezones
-   - [Testing Specifications](./sections/testing.md) — When writing tests with Pest
+1. Read [STANDARDS.md](./STANDARDS.md)
+2. Then consult the relevant section when changing that area:
+   - [Database](./sections/database.md)
+   - [Code structure](./sections/code-structure.md)
+   - [Dates & time](./sections/dates.md)
+   - [Testing](./sections/testing.md)
 
 ## Key Principles
 
-- **Prefer clarity over cleverness** — Code must be easy to understand
-- **Follow Laravel conventions first** — Project conventions supplement, not replace, Laravel's best practices
-- **Avoid premature abstraction** — Build only what's needed now
-- **Production-ready always** — Code must be testable, maintainable, and performant
+- **Prefer clarity over cleverness**
+- **Follow Laravel conventions first**; these rules layer on top
+- **Avoid premature abstraction** — build only what's needed now
+- **Production-ready always** — testable, maintainable, and performant
 
 ## Technology Stack
 
@@ -40,7 +40,7 @@ All developers working on the GRS project must read and follow these specificati
 
 These specifications:
 - Define **project-specific rules** that override personal preferences
-- **Supplement** the official Laravel documentation
+- **Supplement** (but do not repeat) Laravel documentation
 - Evolve as the project grows
 
 **Any deviation from these specifications must be explicitly discussed and approved.**
