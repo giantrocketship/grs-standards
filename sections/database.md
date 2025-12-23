@@ -35,7 +35,7 @@ The `account` model serves as the central tenant structure for the application.
 Schema::create('calendar_sync_logs', function (Blueprint $table) {
     $table->id();
     $table->foreignId('account_id')->constrained('accounts')->cascadeOnDelete();
-    $table->foreignId('calendar_sync_state_id')->constrained('calendar_sync_states')->cascadeOnDelete();
+    $table->foreignId('calendar_sync_state_id')->nullable()->constrained('calendar_sync_states')->nullOnDelete();
     $table->string('status');
     $table->timestamps();
 });
@@ -49,15 +49,24 @@ Schema::create('calendar_sync_logs', function (Blueprint $table) {
 
 Always use the modern Laravel fluent syntax for foreign keys. Never use legacy `references()` and `on()` methods.
 
-### Required Syntax:
+### Default Behavior:
 
-**For required relationships (cannot be null):**
+**Default rule: Use `->nullOnDelete()` for all foreign keys except `account_id`**
+
+- Most foreign keys should be `nullable` and use `->nullOnDelete()` to preserve records when related data is deleted
+- Only `account_id` uses `->cascadeOnDelete()` for tenant isolation (when an account is deleted, all related data is purged)
+
+### Examples:
+
+**Account foreign key (always cascades):**
 ```php
-$table->foreignId('user_id')->constrained()->cascadeOnDelete();
+$table->foreignId('account_id')->constrained()->cascadeOnDelete();
 ```
 
-**For optional relationships (nullable):**
+**Other foreign keys (nullable with nullOnDelete):**
 ```php
+$table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+$table->foreignId('calendar_id')->nullable()->constrained('calendar_calendars')->nullOnDelete();
 $table->foreignId('supervisor_id')->nullable()->constrained('users')->nullOnDelete();
 ```
 
@@ -65,8 +74,8 @@ $table->foreignId('supervisor_id')->nullable()->constrained('users')->nullOnDele
 
 - Use `->constrained()` without a table name when the foreign key matches the convention (`{table}_id` → `{table}`)
 - Always specify the table name explicitly if it doesn't follow convention: `->constrained('custom_table_name')`
-- Use `->cascadeOnDelete()` for required relationships
-- Use `->nullOnDelete()` for optional relationships
+- **`account_id` always uses `->cascadeOnDelete()`** — no exceptions
+- **All other foreign keys use `->nullable()->constrained()->nullOnDelete()`** — this is the default pattern
 - **Never use legacy syntax**: `$table->foreign('column')->references('id')->on('table')`
 - **Never use custom constraint names** — let Laravel generate them automatically
 
@@ -161,7 +170,7 @@ A `calendar_events` table might include `account_id` even if it's accessed only 
 Schema::create('calendar_events', function (Blueprint $table) {
     $table->id();
     $table->foreignId('account_id')->constrained()->cascadeOnDelete(); // Denormalized for performance
-    $table->foreignId('calendar_id')->constrained('calendar_calendars')->cascadeOnDelete();
+    $table->foreignId('calendar_id')->nullable()->constrained('calendar_calendars')->nullOnDelete();
     $table->string('external_id')->unique();
     $table->string('title');
     $table->timestamps();
@@ -192,7 +201,7 @@ Schema::create('calendar_events', function (Blueprint $table) {
 ```php
 $table->id();
 $table->foreignId('account_id')->constrained()->cascadeOnDelete();
-$table->foreignId('calendar_id')->constrained()->cascadeOnDelete();
+$table->foreignId('calendar_id')->nullable()->constrained('calendar_calendars')->nullOnDelete();
 $table->string('name');
 $table->boolean('is_active')->default(true);
 $table->timestamp('synced_at')->nullable();
