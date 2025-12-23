@@ -66,6 +66,47 @@ Any deviation from these specifications **must be explicitly discussed and appro
 
 ---
 
+## Code Quality Tools
+
+### Laravel Pint
+
+**Laravel Pint** is used for automated code formatting and style enforcement.
+
+- Enforces PSR-12 coding standards
+- Runs automatically on code changes
+- Ensures consistent formatting across the codebase
+- Fixes formatting issues automatically
+
+All code must pass Pint validation. Run Pint before committing:
+
+```bash
+./vendor/bin/pint
+```
+
+### Larastan
+
+**Larastan** is used for static analysis to catch type errors and potential bugs before runtime.
+
+- Detects type mismatches and undefined methods
+- Identifies potential null pointer issues
+- Enforces strict type checking
+- Integrates with Laravel framework knowledge
+
+All code must pass Larastan analysis at level 5. Run Larastan regularly during development:
+
+```bash
+./vendor/bin/phpstan analyse
+```
+
+### Quality Requirements
+
+- Code must pass both Pint and Larastan before being merged
+- Pre-commit hooks should run these tools automatically
+- No code should be committed with linting or static analysis failures
+- Type safety is non-negotiable
+
+---
+
 ## Next Steps
 
 Developers should begin by reviewing:

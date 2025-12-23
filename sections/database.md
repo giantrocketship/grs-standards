@@ -214,6 +214,117 @@ $table->timestamps();
 
 ---
 
+## Column Clarity & Aggregation
+
+### Aggregation Suffixes
+
+When a column holds aggregated data (counts, sums, averages, etc.), use clear suffixes to indicate the operation:
+
+- `_count` — number of items (e.g., `events_synced_count`)
+- `_sum` — total sum (e.g., `revenue_sum`)
+- `_avg` — average value (e.g., `rating_avg`)
+- `_min` — minimum value (e.g., `price_min`)
+- `_max` — maximum value (e.g., `price_max`)
+
+**Why:** Ambiguous column names like `events_synced` could be JSON data, a count, or actual event records. Always be explicit.
+
+**Good Examples:**
+```php
+$table->integer('events_synced_count')->default(0);
+$table->unsignedInteger('user_count')->default(0);
+```
+
+**Bad Examples:**
+```php
+$table->integer('events_synced'); // Unclear: count? JSON? Event IDs?
+$table->integer('revenue');        // Could be sum, average, or single value
+```
+
+---
+
+## External IDs
+
+### External ID Naming
+
+For columns that store identifiers from external systems or third-party services, always use `ext_id`:
+
+**Rule:** Use `ext_id` for any external identifier, regardless of the source system.
+
+**Why:** This makes it immediately clear that a column contains data from an external system, not a local database reference.
+
+**Examples:**
+```php
+$table->string('ext_id')->nullable();  // External ID from third-party system
+```
+
+---
+
+## Public vs Internal ID Exposure
+
+### Rule: Never Expose Database IDs Publicly
+
+**Internal Code & Services:** Use `id` (the auto-increment primary key) for internal service-to-service communication.
+
+**Public-Facing Interfaces:** Always reference records by `uuid` instead of `id`. Never expose database IDs to:
+- REST APIs
+- Admin portals
+- User-facing applications
+- Third-party integrations
+
+**Why:** Database IDs are predictable, sequential, and reveal information about system scale. UUIDs are non-sequential, non-guessable, and safe to expose.
+
+### Implementation
+
+Add a `uuid` column to any table that will be referenced publicly:
+
+```php
+Schema::create('calendar_events', function (Blueprint $table) {
+    $table->id(); // Internal use only
+    $table->uuid('uuid')->unique(); // Public-facing identifier
+    $table->foreignId('account_id')->constrained()->cascadeOnDelete();
+    $table->string('title');
+    $table->timestamps();
+});
+```
+
+### Usage Patterns
+
+**Internal (Service Layer):**
+```php
+// Use id for internal lookups
+$event = CalendarEvent::find($id); // or findOrFail()
+```
+
+**Public APIs:**
+```php
+// Route accepts UUID
+Route::get('/api/events/{uuid}', EventController::class);
+
+// Controller uses UUID to look up record
+public function show(string $uuid)
+{
+    $event = CalendarEvent::where('uuid', $uuid)->firstOrFail();
+    return EventResource::make($event);
+}
+```
+
+**API Resources:**
+```php
+class EventResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->uuid, // Return UUID, not database id
+            'title' => $this->title,
+            'created_at' => $this->created_at,
+        ];
+    }
+}
+```
+
+---
+
 ## Soft Deletes
 
 When soft deletes are required, use Laravel's `SoftDeletes` trait:
@@ -258,5 +369,8 @@ Before committing any migration:
 - [ ] Indexes are applied with `->index()` (no custom names)
 - [ ] No database enums are used
 - [ ] Column names follow `snake_case` convention
+- [ ] Aggregation columns use clear suffixes (`_count`, `_sum`, `_avg`, etc.)
+- [ ] External IDs use `ext_id` naming
+- [ ] Public-facing tables have `uuid` column (never expose `id`)
 - [ ] No custom constraint or index names are specified
 - [ ] Denormalization is documented if present

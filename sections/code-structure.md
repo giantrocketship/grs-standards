@@ -353,6 +353,80 @@ php artisan make:controller Triage/TriageController --resource
 
 ---
 
+## Error Handling & Failure Modes
+
+### Fail Loudly, Never Silently
+
+Code must fail **loudly and immediately** when something goes wrong. Silent failures lead to subtle bugs and data corruption.
+
+**Rule:** Never suppress errors or default values that could mask problems.
+
+**Bad Examples:**
+```php
+// ❌ Silent failure: Swallows exception
+try {
+    $user = User::findOrFail($id);
+} catch (ModelNotFoundException $e) {
+    $user = null; // Silently returns null
+}
+
+// ❌ Silent default: Could hide bugs
+$status = $data['status'] ?? 'pending'; // What if status is required?
+
+// ❌ No validation: Fails silently later
+$this->userId = $input['user_id']; // What if it's missing or invalid?
+```
+
+**Good Examples:**
+```php
+// ✅ Fail loudly: Throws exception immediately
+$user = User::findOrFail($id); // Throws ModelNotFoundException
+
+// ✅ Explicit validation: Requires intent
+throw_if(! isset($data['status']), InvalidArgumentException::class);
+
+// ✅ Type validation: Catches mismatches early
+public function setUserId(int $id): void
+{
+    // Type hint forces correct input
+    $this->userId = $id;
+}
+```
+
+### Never Default Values That Hide Failures
+
+**Rule:** Never provide default values for required data if they could allow code to continue in an invalid state.
+
+**Bad Examples:**
+```php
+// ❌ Missing account_id defaults to 0 (invalid)
+$accountId = $request->input('account_id', 0);
+
+// ❌ Empty string defaults that cause bugs later
+$email = $request->input('email', '');
+
+// ❌ Silent null defaults for required fields
+$name = $data['name'] ?? '';
+```
+
+**Good Examples:**
+```php
+// ✅ Fail if required field is missing
+$accountId = $request->validate(['account_id' => 'required|integer']);
+
+// ✅ Use exceptions for required data
+$email = $request->input('email')
+    ?? throw new InvalidArgumentException('Email is required');
+
+// ✅ Type checking prevents silent failures
+public function __construct(private int $accountId, private string $email)
+{
+    // Constructor guarantees valid data
+}
+```
+
+---
+
 ## Octane-Specific Guidelines
 
 ### Avoid Singletons in Service Providers
@@ -423,5 +497,7 @@ Before committing code:
 - [ ] Policies in `app/Policies/` with account_id checks
 - [ ] Jobs in `app/Jobs/` with module organization
 - [ ] Contracts defined for key abstractions
+- [ ] Code fails loudly — no silent failures or misleading defaults
+- [ ] Required values are never defaulted to values that hide failures
 - [ ] No singletons used in service providers
 - [ ] No request-specific data stored in class properties
