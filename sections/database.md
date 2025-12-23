@@ -2,7 +2,7 @@
 
 ## Overview
 
-Database design conventions for GRS. All migrations, schemas, and relationships must follow these rules.
+Database design rules for all GRS migrations and schemas.
 
 ---
 
@@ -19,8 +19,6 @@ Tables must use a module prefix:
 ---
 
 ## Account as Tenant
-
-Rules:
 
 1. **All tables include `account_id`** — even when denormalized
 2. **Use `account_id`, never `tenant_id`**
@@ -42,9 +40,9 @@ Schema::create('calendar_sync_logs', function (Blueprint $table) {
 
 ## Foreign Keys
 
-### Default Behavior:
+### Default Behavior
 
-**Default rule: Use `->nullOnDelete()` for all foreign keys except `account_id`**
+**Use `->nullOnDelete()` for all foreign keys except `account_id`.**
 
 - Most foreign keys should be `nullable` and use `->nullOnDelete()` to preserve records when related data is deleted
 - Only `account_id` uses `->cascadeOnDelete()` for tenant isolation (when an account is deleted, all related data is purged)
@@ -63,14 +61,14 @@ $table->foreignId('calendar_id')->nullable()->constrained('calendars')->nullOnDe
 $table->foreignId('supervisor_id')->nullable()->constrained('users')->nullOnDelete();
 ```
 
-### Rules:
+### Rules
 
 - Use `->constrained()` without a table name when the foreign key matches the convention (`{table}_id` → `{table}`)
-- Always specify the table name explicitly if it doesn't follow convention: `->constrained('custom_table_name')`
+- Explicitly specify the table name if it doesn't follow convention: `->constrained('custom_table_name')`
 - **`account_id` always uses `->cascadeOnDelete()`** — no exceptions
-- **All other foreign keys use `->nullable()->constrained()->nullOnDelete()`** — this is the default pattern
+- **All other foreign keys use `->nullable()->constrained()->nullOnDelete()`** by default
 - **Never use legacy syntax**: `$table->foreign('column')->references('id')->on('table')`
-- **Never use custom constraint names** — let Laravel generate them automatically
+- **Never use custom constraint names** — let Laravel generate them
 
 ---
 
@@ -107,7 +105,7 @@ Rules:
 
 Use strings/ints validated against application-level enums:
 
-**Application Enum (app/Enums/SyncStatus.php):**
+**Application enum (app/Enums/SyncStatus.php):**
 ```php
 enum SyncStatus: string
 {
@@ -123,7 +121,7 @@ enum SyncStatus: string
 $table->string('status'); // Not enum() — use string
 ```
 
-**Model Validation:**
+**Validation:**
 ```php
 $validated = $request->validate([
     'status' => ['required', Rule::enum(SyncStatus::class)],
@@ -168,7 +166,7 @@ Conventions:
 - Timestamps: `created_at`, `updated_at`
 - Soft deletes: `deleted_at`
 
-### Date & Time Column Naming
+### Date & Time Columns
 
 For naming patterns (`*_at`, `*_on`, `*_time`, `*_epoch`) and storage rules, see [Dates & Time Handling](./dates.md).
 

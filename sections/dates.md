@@ -2,7 +2,7 @@
 
 ## Overview
 
-GRS date/time rules for multi-timezone behavior and storage.
+GRS date/time rules for storage and multi-timezone behavior.
 
 ---
 
@@ -17,7 +17,7 @@ GRS date/time rules for multi-timezone behavior and storage.
 
 ## Column Naming Conventions
 
-Use these naming patterns across all tables:
+Use these patterns across all tables:
 
 | Pattern | Type | Example | Usage |
 |---------|------|---------|-------|
@@ -26,7 +26,7 @@ Use these naming patterns across all tables:
 | `*_time` | Time | `start_time`, `end_time` | Time only (no date) |
 | `*_epoch` | Integer | `created_epoch`, `timestamp_epoch` | Unix timestamp (seconds) |
 
-### Examples:
+### Examples
 
 ```php
 // Datetime columns (stored as UTC)
@@ -139,7 +139,7 @@ class User extends Model
 }
 ```
 
-Valid timezone strings are from PHP's supported timezones (e.g., `'UTC'`, `'America/New_York'`, `'Europe/London'`).
+Valid timezone strings are from PHP's supported timezones.
 
 ---
 

@@ -4,8 +4,6 @@
 
 Testing standards for GRS using **Pest**.
 
-All tests must follow these rules for consistency and reliability.
-
 ---
 
 ## Test Types
@@ -44,7 +42,7 @@ All tests must follow these rules for consistency and reliability.
 
 ## External HTTP Calls
 
-When a test makes real HTTP calls to external services (not the app), it **must** be labeled with the `external` group:
+When a test makes real HTTP calls to external services (not the app), label it with the `external` group:
 
 ```php
 test('fetches data from external API', function () {

@@ -1,6 +1,6 @@
 # GRS Standards
 
-Technical standards for the GRS project.
+Technical standards for GRS.
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@ Technical standards for the GRS project.
 
 ## Overview
 
-Authoritative project standards for GRS, covering:
+Authoritative standards covering:
 
 - **Database design** — Table naming, foreign keys, indexes, and constraints
 - **Code structure** — Project organization, naming conventions, and architectural patterns
@@ -25,8 +25,8 @@ All GRS developers must follow these specifications.
 
 ## Quick Start
 
-1. Skim the principles and quality tools below
-2. Then consult the relevant section when changing that area:
+1. Skim the principles and tooling below
+2. Consult the relevant section when changing that area:
    - [Database](./sections/database.md)
    - [Code structure](./sections/code-structure.md)
    - [Dates & time](./sections/dates.md)
@@ -43,8 +43,8 @@ All GRS developers must follow these specifications.
 ## Authority & Scope
 
 These specifications:
-- Define **project-specific rules** that override personal preferences
-- Override personal style in favor of consistency
+- Define **project-specific rules** over personal preferences
+- Prioritize consistency over individual style
 - Supplement Laravel docs rather than restating them
 - Evolve as the project grows
 
@@ -54,14 +54,9 @@ Any deviation from these specifications **must be explicitly discussed and appro
 
 ### Laravel Pint
 
-Automated code formatting and style enforcement:
-
-- Enforces PSR-12 coding standards
-- Runs automatically on code changes
-- Ensures consistent formatting across the codebase
-- Fixes formatting issues automatically
-
-All code must pass Pint validation:
+- Enforces PSR-12 and project formatting
+- Should run automatically on changes (e.g. via hooks)
+- All code must pass Pint before merge:
 
 ```bash
 ./vendor/bin/pint
@@ -69,14 +64,8 @@ All code must pass Pint validation:
 
 ### Larastan
 
-Static analysis for type safety and framework-aware checks:
-
-- Detects type mismatches and undefined methods
-- Identifies potential null pointer issues
-- Enforces strict type checking
-- Integrates with Laravel framework knowledge
-
-All code must pass Larastan analysis at level 5:
+- Static analysis for type safety and framework-aware checks
+- All code must pass level 5 analysis:
 
 ```bash
 ./vendor/bin/phpstan analyse
@@ -85,8 +74,8 @@ All code must pass Larastan analysis at level 5:
 ### Quality Requirements
 
 - Code must pass both Pint and Larastan before merge
-- Pre-commit hooks should run these tools automatically
-- No code should be committed with linting or static analysis failures
+- Prefer pre-commit hooks to run these tools
+- Never commit with linting or analysis failures
 - Type safety is non-negotiable
 
 ## Technology Stack
@@ -101,9 +90,9 @@ All code must pass Larastan analysis at level 5:
 
 When updating these specifications:
 
-1. Make changes to the relevant markdown file in `sections/`
-2. Test examples and code snippets thoroughly
-3. Create a clear commit message explaining the change
+1. Change the relevant file in `sections/`
+2. Test examples and code snippets
+3. Write a clear commit message
 4. Ensure consistency across all documentation
 
 ## Questions?

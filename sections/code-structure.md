@@ -43,6 +43,10 @@ app/
 
 Group by module under each directory.
 
+General rules:
+- Keep module names consistent across layers (DTOs, Enums, Http, Jobs, Models, Policies, Services, etc.)
+- Prefer one module folder depth (e.g. `Triage/`), avoid deeper trees unless clearly needed
+
 Example pattern (Triage):
 
 ```
@@ -102,9 +106,8 @@ Always add appropriate suffixes to class files for clarity:
 
 ### Models (`app/Models/`)
 
-**Guidelines:**
 - Use module subdirectories
-- Keep models focused on relationships, casts, scopes
+- Focus models on relationships, casts, scopes
 - Move business logic to services
 
 ### Enums (`app/Enums/`)
@@ -128,7 +131,6 @@ enum TriageStatus: string
 
 ### Casts (`app/Casts/`)
 
-**Guidelines:**
 - Use the `Cast` suffix
 - Organize by module
 - Register via model `$casts`
@@ -137,7 +139,6 @@ enum TriageStatus: string
 
 DTOs are always Spatie Laravel Data objects.
 
-**Guidelines:**
 - **Always use Spatie Laravel Data**; do not hand-roll DTOs
 - Organize by module: `app/DTOs/Triage/`, `app/DTOs/Calendar/`, etc.
 - Suffix is optional: `TriageData.php`, `CreateTriageData.php`
@@ -147,21 +148,18 @@ DTOs are always Spatie Laravel Data objects.
 
 ### Jobs (`app/Jobs/`)
 
-**Guidelines:**
 - Use the `Job` suffix
 - Organize by module
 - Keep jobs focused and idempotent
 
 ### Exceptions (`app/Exceptions/`)
 
-**Guidelines:**
 - Use the `Exception` suffix
 - Organize by module
 - Provide meaningful messages and context
 
 ### Policies (`app/Policies/`)
 
-**Guidelines:**
 - Use the `Policy` suffix
 - Organize by module
 - Always check `account_id` for tenant isolation
@@ -169,7 +167,6 @@ DTOs are always Spatie Laravel Data objects.
 
 ### Services (`app/Services/`)
 
-**Guidelines:**
 - Use the `Service` suffix
 - Organize by module
 - Inject dependencies via constructor
@@ -179,7 +176,6 @@ DTOs are always Spatie Laravel Data objects.
 
 ### Contracts/Interfaces (`app/Contracts/` or `app/Services/Module/Contracts/`)
 
-**Guidelines:**
 - Use `Interface` suffix: `TriageRepositoryInterface.php`
 - Core/global contracts in `app/Contracts/`
 - Module-specific contracts in `app/Services/Module/Contracts/`
@@ -187,7 +183,6 @@ DTOs are always Spatie Laravel Data objects.
 
 ### Traits (`app/Traits/` or `app/Services/Module/Traits/`)
 
-**Guidelines:**
 - Use the `Trait` suffix
 - Global traits in `app/Traits/`
 - Module traits in `app/Services/Module/Traits/`
@@ -195,7 +190,6 @@ DTOs are always Spatie Laravel Data objects.
 
 ### Form Requests (`app/Http/Requests/`)
 
-**Guidelines:**
 - Use the `Request` suffix
 - Organize by module
 - Put authorization in `authorize()`
@@ -203,7 +197,6 @@ DTOs are always Spatie Laravel Data objects.
 
 ### Resources (`app/Http/Resources/`)
 
-**Guidelines:**
 - Use the `Resource` suffix
 - Organize by module
 - Use ISO 8601 for dates
@@ -211,7 +204,6 @@ DTOs are always Spatie Laravel Data objects.
 
 ### Controllers (`app/Http/Controllers/`)
 
-**Guidelines:**
 - Use the `Controller` suffix
 - Organize by module
 - Keep controllers thin; delegate to services
