@@ -66,7 +66,7 @@ $table->foreignId('account_id')->constrained()->cascadeOnDelete();
 **Other foreign keys (nullable with nullOnDelete):**
 ```php
 $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
-$table->foreignId('calendar_id')->nullable()->constrained('calendar_calendars')->nullOnDelete();
+$table->foreignId('calendar_id')->nullable()->constrained('calendars')->nullOnDelete();
 $table->foreignId('supervisor_id')->nullable()->constrained('users')->nullOnDelete();
 ```
 
@@ -170,7 +170,7 @@ A `calendar_events` table might include `account_id` even if it's accessed only 
 Schema::create('calendar_events', function (Blueprint $table) {
     $table->id();
     $table->foreignId('account_id')->constrained()->cascadeOnDelete(); // Denormalized for performance
-    $table->foreignId('calendar_id')->nullable()->constrained('calendar_calendars')->nullOnDelete();
+    $table->foreignId('calendar_id')->nullable()->constrained('calendars')->nullOnDelete();
     $table->string('external_id')->unique();
     $table->string('title');
     $table->timestamps();
@@ -201,7 +201,7 @@ Schema::create('calendar_events', function (Blueprint $table) {
 ```php
 $table->id();
 $table->foreignId('account_id')->constrained()->cascadeOnDelete();
-$table->foreignId('calendar_id')->nullable()->constrained('calendar_calendars')->nullOnDelete();
+$table->foreignId('calendar_id')->nullable()->constrained('calendars')->nullOnDelete();
 $table->string('name');
 $table->boolean('is_active')->default(true);
 $table->timestamp('synced_at')->nullable();
