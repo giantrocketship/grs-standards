@@ -1,50 +1,10 @@
-# Project Technical Specification
+# Core Principles & Standards
 
-## Overview
-
-This document serves as the **primary technical specification** for the project and is intended for **experienced Laravel developers**.
-
-The project is built using the following core technologies:
-
-- **Laravel 12**
-- **Laravel Octane**
-- **Laravel Sail**
-- **Redis**
-- **MySQL**
-
-All architectural, implementation, and operational decisions should align with best practices for the tools listed above.
-
-> **Important:**  
-> If a topic, behavior, or implementation detail is **not explicitly covered in this documentation**, developers **must strictly follow the official Laravel documentation** and its recommended conventions.
-case
----
-
-## Technology Stack
-
-| Component        | Purpose                              |
-|------------------|--------------------------------------|
-| Laravel 12       | Core application framework           |
-| Laravel Octane   | High-performance application runtime |
-| Laravel Sail     | Local development environment        |
-| Redis            | Caching, queues, and ephemeral data  |
-| MySQL            | Relational database                  |
+This document outlines the guiding principles and quality standards for the GRS project. For navigation and setup guidance, refer to [README.md](./README.md).
 
 ---
 
-## Documentation Structure
-
-This specification is split into multiple focused chapters. Each chapter is authoritative within its scope.
-
-- [Database Specifications](./sections/database.md)
-- [Code Structuring Specifications](./sections/code-structure.md)
-- [Dates & Time Handling](./sections/dates.md)
-- [Testing Specifications](./sections/testing.md)
-
-Each linked document **must be read and followed** when working within its respective area.
-
----
-
-## General Principles
+## Guiding Principles
 
 - Prefer **clarity over cleverness**
 - Follow **Laravel conventions first**, project conventions second
@@ -108,13 +68,11 @@ All code must pass Larastan analysis at level 5. Run Larastan regularly during d
 
 ---
 
-## Next Steps
+## Detailed Specifications
 
-Developers should begin by reviewing:
+For specific standards in each area, see:
 
-1. Database Specifications
-2. Code Structuring Specifications
-3. Dates & Time Handling
-4. Testing Specifications
-
-Additional chapters will be introduced as the project evolves.
+- [Database Specifications](./sections/database.md)
+- [Code Structuring Specifications](./sections/code-structure.md)
+- [Dates & Time Handling](./sections/dates.md)
+- [Testing Specifications](./sections/testing.md)
