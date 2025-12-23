@@ -2,6 +2,17 @@
 
 Technical standards for the GRS project.
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Guiding Principles](#guiding-principles)
+- [Authority & Scope](#authority--scope)
+- [Code Quality Tools](#code-quality-tools)
+- [Technology Stack](#technology-stack)
+- [Contributing](#contributing)
+- [Questions](#questions)
+
 ## Overview
 
 Authoritative project standards for GRS, covering:
@@ -14,19 +25,69 @@ All GRS developers must follow these specifications.
 
 ## Quick Start
 
-1. Read [STANDARDS.md](./STANDARDS.md)
+1. Skim the principles and quality tools below
 2. Then consult the relevant section when changing that area:
    - [Database](./sections/database.md)
    - [Code structure](./sections/code-structure.md)
    - [Dates & time](./sections/dates.md)
    - [Testing](./sections/testing.md)
 
-## Key Principles
+## Guiding Principles
 
-- **Prefer clarity over cleverness**
-- **Follow Laravel conventions first**; these rules layer on top
-- **Avoid premature abstraction** — build only what's needed now
-- **Production-ready always** — testable, maintainable, and performant
+- Prefer **clarity over cleverness**
+- Follow **Laravel conventions first**, project conventions second
+- Avoid premature abstraction
+- Code must be production-ready, testable, and maintainable
+- Always consider Octane performance characteristics
+
+## Authority & Scope
+
+These specifications:
+- Define **project-specific rules** that override personal preferences
+- Override personal style in favor of consistency
+- Supplement Laravel docs rather than restating them
+- Evolve as the project grows
+
+Any deviation from these specifications **must be explicitly discussed and approved**.
+
+## Code Quality Tools
+
+### Laravel Pint
+
+Automated code formatting and style enforcement:
+
+- Enforces PSR-12 coding standards
+- Runs automatically on code changes
+- Ensures consistent formatting across the codebase
+- Fixes formatting issues automatically
+
+All code must pass Pint validation:
+
+```bash
+./vendor/bin/pint
+```
+
+### Larastan
+
+Static analysis for type safety and framework-aware checks:
+
+- Detects type mismatches and undefined methods
+- Identifies potential null pointer issues
+- Enforces strict type checking
+- Integrates with Laravel framework knowledge
+
+All code must pass Larastan analysis at level 5:
+
+```bash
+./vendor/bin/phpstan analyse
+```
+
+### Quality Requirements
+
+- Code must pass both Pint and Larastan before merge
+- Pre-commit hooks should run these tools automatically
+- No code should be committed with linting or static analysis failures
+- Type safety is non-negotiable
 
 ## Technology Stack
 
@@ -36,24 +97,14 @@ All GRS developers must follow these specifications.
 - **Redis** — Caching and queues
 - **MySQL** — Relational database
 
-## Authority & Scope
-
-These specifications:
-- Define **project-specific rules** that override personal preferences
-- **Supplement** (but do not repeat) Laravel documentation
-- Evolve as the project grows
-
-**Any deviation from these specifications must be explicitly discussed and approved.**
-
 ## Contributing
 
 When updating these specifications:
 
 1. Make changes to the relevant markdown file in `sections/`
 2. Test examples and code snippets thoroughly
-3. Update the main [STANDARDS.md](./STANDARDS.md) if needed
-4. Create a clear commit message explaining the change
-5. Ensure consistency across all documentation
+3. Create a clear commit message explaining the change
+4. Ensure consistency across all documentation
 
 ## Questions?
 
