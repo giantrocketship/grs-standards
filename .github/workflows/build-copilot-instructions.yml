@@ -3,7 +3,7 @@ name: Build Copilot Instructions
 on:
     push:
         branches:
-            - main
+            - "**"
 
 permissions:
     contents: write
@@ -53,7 +53,8 @@ jobs:
               run: |
                   set -euo pipefail
 
-                  if git diff --quiet -- copilot-instructions.md; then
+                  # Check if file is new or modified
+                  if ! git status --porcelain copilot-instructions.md | grep . >/dev/null 2>&1; then
                     echo "copilot-instructions.md is up to date; nothing to commit."
                     exit 0
                   fi
