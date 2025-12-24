@@ -8,23 +8,23 @@ Technical standards for GRS.
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Quick Start](#quick-start)
-- [Guiding Principles](#guiding-principles)
-- [Authority & Scope](#authority--scope)
-- [Code Quality Tools](#code-quality-tools)
-- [Technology Stack](#technology-stack)
-- [Contributing](#contributing)
-- [Questions](#questions)
+-   [Overview](#overview)
+-   [Quick Start](#quick-start)
+-   [Guiding Principles](#guiding-principles)
+-   [Authority & Scope](#authority--scope)
+-   [Code Quality Tools](#code-quality-tools)
+-   [Technology Stack](#technology-stack)
+-   [Contributing](#contributing)
+-   [Questions](#questions)
 
 ## Overview
 
 Authoritative standards covering:
 
-- **Database design** — Table naming, foreign keys, indexes, and constraints
-- **Code structure** — Project organization, naming conventions, and architectural patterns
-- **Dates & time handling** — Timezone management and temporal data practices
- - **Error handling** — Exceptions, logging, and failure behavior
+-   **Database design** — Table naming, foreign keys, indexes, and constraints
+-   **Code structure** — Project organization, naming conventions, and architectural patterns
+-   **Dates & time handling** — Timezone management and temporal data practices
+-   **Error handling** — Exceptions, logging, and failure behavior
 
 All GRS developers must follow these specifications.
 
@@ -32,27 +32,28 @@ All GRS developers must follow these specifications.
 
 1. Skim the principles and tooling below
 2. Consult the relevant section when changing that area:
-   - [Database](./sections/database.md)
-   - [Code structure](./sections/code-structure.md)
-   - [Dates & time](./sections/dates.md)
-   - [Testing](./sections/testing.md)
-   - [Error handling](./sections/error-handling.md)
+    - [Database](./sections/database.md)
+    - [Code structure](./sections/code-structure.md)
+    - [Dates & time](./sections/dates.md)
+    - [Testing](./sections/testing.md)
+    - [Error handling](./sections/error-handling.md)
 
 ## Guiding Principles
 
-- Prefer **clarity over cleverness**
-- Follow **Laravel conventions first**, project conventions second
-- Avoid premature abstraction
-- Code must be production-ready, testable, and maintainable
-- Always consider Octane performance characteristics
+-   Prefer **clarity over cleverness**
+-   Follow **Laravel conventions first**, project conventions second
+-   Avoid premature abstraction
+-   Code must be production-ready, testable, and maintainable
+-   Always consider Octane performance characteristics
 
 ## Authority & Scope
 
 These specifications:
-- Define **project-specific rules** over personal preferences
-- Prioritize consistency over individual style
-- Supplement Laravel docs rather than restating them
-- Evolve as the project grows
+
+-   Define **project-specific rules** over personal preferences
+-   Prioritize consistency over individual style
+-   Supplement Laravel docs rather than restating them
+-   Evolve as the project grows
 
 Any deviation from these specifications **must be explicitly discussed and approved**.
 
@@ -60,9 +61,9 @@ Any deviation from these specifications **must be explicitly discussed and appro
 
 ### Laravel Pint
 
-- Enforces PSR-12 and project formatting
-- Should run automatically on changes (e.g. via hooks)
-- All code must pass Pint before merge:
+-   Enforces PSR-12 and project formatting
+-   Should run automatically on changes (e.g. via hooks)
+-   All code must pass Pint before merge:
 
 ```bash
 ./vendor/bin/pint
@@ -70,8 +71,8 @@ Any deviation from these specifications **must be explicitly discussed and appro
 
 ### Larastan
 
-- Static analysis for type safety and framework-aware checks
-- All code must pass level 5 analysis:
+-   Static analysis for type safety and framework-aware checks
+-   All code must pass level 5 analysis:
 
 ```bash
 ./vendor/bin/phpstan analyse
@@ -79,18 +80,18 @@ Any deviation from these specifications **must be explicitly discussed and appro
 
 ### Quality Requirements
 
-- Code must pass both Pint and Larastan before merge
-- Prefer pre-commit hooks to run these tools
-- Never commit with linting or analysis failures
-- Type safety is non-negotiable
+-   Code must pass both Pint and Larastan before merge
+-   Prefer pre-commit hooks to run these tools
+-   Never commit with linting or analysis failures
+-   Type safety is non-negotiable
 
 ## Technology Stack
 
-- **Laravel 12** — Core framework
-- **Laravel Octane** — High-performance runtime
-- **Laravel Sail** — Local development environment
-- **Redis** — Caching and queues
-- **MySQL** — Relational database
+-   **Laravel 12** — Core framework
+-   **Laravel Octane** — High-performance runtime
+-   **Laravel Sail** — Local development environment
+-   **Redis** — Caching and queues
+-   **MySQL** — Relational database
 
 ## Contributing
 
@@ -119,9 +120,9 @@ Directory structure, file organization, and naming conventions specific to GRS.
 
 **Never create classes by hand.** Use `php artisan make:*` so:
 
-- Paths and namespaces follow Laravel
-- Base classes/traits are correct
-- Names are consistent across the project
+-   Paths and namespaces follow Laravel
+-   Base classes/traits are correct
+-   Names are consistent across the project
 
 ---
 
@@ -153,8 +154,9 @@ app/
 Group by module under each directory.
 
 General rules:
-- Keep module names consistent across layers (DTOs, Enums, Http, Jobs, Models, Policies, Services, etc.)
-- Prefer one module folder depth (e.g. `Triage/`), avoid deeper trees unless clearly needed
+
+-   Keep module names consistent across layers (DTOs, Enums, Http, Jobs, Models, Policies, Services, etc.)
+-   Prefer one module folder depth (e.g. `Triage/`), avoid deeper trees unless clearly needed
 
 Example pattern (Triage):
 
@@ -185,29 +187,29 @@ app/
 
 Always add appropriate suffixes to class files for clarity:
 
-| File Type | Suffix           | Example                           |
-|-----------|------------------|-----------------------------------|
-| Controller | `Controller`     | `TriageController.php`            |
-| Model | None             | `Triage.php`                      |
-| Request | `Request`        | `StoreTriageRequest.php`          |
-| Resource | `Resource`       | `TriageResource.php`              |
-| Job | `Job`            | `ProcessTriageJob.php`            |
-| Cast | `Cast`           | `StatusCast.php`                  |
-| Exception | `Exception`      | `InvalidTriageStateException.php` |
-| Policy | `Policy`         | `TriagePolicy.php`                |
-| Service | `Service`        | `TriageService.php`               |
-| Trait | `Trait`          | `HasTriageStatus.php`             |
+| File Type          | Suffix           | Example                           |
+| ------------------ | ---------------- | --------------------------------- |
+| Controller         | `Controller`     | `TriageController.php`            |
+| Model              | None             | `Triage.php`                      |
+| Request            | `Request`        | `StoreTriageRequest.php`          |
+| Resource           | `Resource`       | `TriageResource.php`              |
+| Job                | `Job`            | `ProcessTriageJob.php`            |
+| Cast               | `Cast`           | `StatusCast.php`                  |
+| Exception          | `Exception`      | `InvalidTriageStateException.php` |
+| Policy             | `Policy`         | `TriagePolicy.php`                |
+| Service            | `Service`        | `TriageService.php`               |
+| Trait              | `Trait`          | `HasTriageStatus.php`             |
 | Contract/Interface | `Contract`       | `TriageHandlerContract.php`       |
-| Enum | `Enum`           | `TriageStatus.php`                |
-| DTO | `Data`, `Result` | `TriageData.php`                  |
-| Action | `Action`         | `ProcessTriageAction.php`         |
+| Enum               | `Enum`           | `TriageStatus.php`                |
+| DTO                | `Data`, `Result` | `TriageData.php`                  |
+| Action             | `Action`         | `ProcessTriageAction.php`         |
 
 ### Exclusions (No Suffix Required)
 
-- **Models** — `Triage.php`, not `TriageModel.php`
-- **Enums** — `TriageStatus.php` is fine
-- **DTOs** — `TriageData.php` or `TriageResult.php`
-- **Actions** — Verb-style names like `ProcessTriage.php`
+-   **Models** — `Triage.php`, not `TriageModel.php`
+-   **Enums** — `TriageStatus.php` is fine
+-   **DTOs** — `TriageData.php` or `TriageResult.php`
+-   **Actions** — Verb-style names like `ProcessTriage.php`
 
 ---
 
@@ -215,9 +217,9 @@ Always add appropriate suffixes to class files for clarity:
 
 ### Models (`app/Models/`)
 
-- Use module subdirectories
-- Focus models on relationships, casts, scopes
-- Move business logic to services
+-   Use module subdirectories
+-   Focus models on relationships, casts, scopes
+-   Move business logic to services
 
 ### Enums (`app/Enums/`)
 
@@ -234,90 +236,91 @@ enum TriageStatus: string
 ```
 
 **Guidelines:**
-- Organize by module
-- Use descriptive case names
-- Keep enums simple; move complex logic to services
+
+-   Organize by module
+-   Use descriptive case names
+-   Keep enums simple; move complex logic to services
 
 ### Casts (`app/Casts/`)
 
-- Use the `Cast` suffix
-- Organize by module
-- Register via model `$casts`
+-   Use the `Cast` suffix
+-   Organize by module
+-   Register via model `$casts`
 
 ### DTOs (`app/DTOs/`)
 
 DTOs are always Spatie Laravel Data objects.
 
-- **Always use Spatie Laravel Data**; do not hand-roll DTOs
-- Organize by module: `app/DTOs/Triage/`, `app/DTOs/Calendar/`, etc.
-- Suffix is optional: `TriageData.php`, `CreateTriageData.php`
-- Use attributes for validation
-- Use `from()` to create DTOs from requests/models
-- Use DTOs at API and service boundaries; no business logic inside
+-   **Always use Spatie Laravel Data**; do not hand-roll DTOs
+-   Organize by module: `app/DTOs/Triage/`, `app/DTOs/Calendar/`, etc.
+-   Suffix is optional: `TriageData.php`, `CreateTriageData.php`
+-   Use attributes for validation
+-   Use `from()` to create DTOs from requests/models
+-   Use DTOs at API and service boundaries; no business logic inside
 
 ### Jobs (`app/Jobs/`)
 
-- Use the `Job` suffix
-- Organize by module
-- Keep jobs focused and idempotent
+-   Use the `Job` suffix
+-   Organize by module
+-   Keep jobs focused and idempotent
 
 ### Exceptions (`app/Exceptions/`)
 
-- Use the `Exception` suffix
-- Organize by module
-- Provide meaningful messages and context
+-   Use the `Exception` suffix
+-   Organize by module
+-   Provide meaningful messages and context
 
 ### Policies (`app/Policies/`)
 
-- Use the `Policy` suffix
-- Organize by module
-- Always check `account_id` for tenant isolation
-- Register in `AuthServiceProvider`
+-   Use the `Policy` suffix
+-   Organize by module
+-   Always check `account_id` for tenant isolation
+-   Register in `AuthServiceProvider`
 
 ### Services (`app/Services/`)
 
-- Use the `Service` suffix
-- Organize by module
-- Inject dependencies via constructor
-- Single responsibility per service
-- Use DTOs for data transfer
-- Dispatch jobs for async work
+-   Use the `Service` suffix
+-   Organize by module
+-   Inject dependencies via constructor
+-   Single responsibility per service
+-   Use DTOs for data transfer
+-   Dispatch jobs for async work
 
 ### Contracts/Interfaces (`app/Contracts/` or `app/Services/Module/Contracts/`)
 
-- Use `Interface` suffix: `TriageRepositoryInterface.php`
-- Core/global contracts in `app/Contracts/`
-- Module-specific contracts in `app/Services/Module/Contracts/`
-- Bind interfaces to implementations in service providers
+-   Use `Interface` suffix: `TriageRepositoryInterface.php`
+-   Core/global contracts in `app/Contracts/`
+-   Module-specific contracts in `app/Services/Module/Contracts/`
+-   Bind interfaces to implementations in service providers
 
 ### Traits (`app/Traits/` or `app/Services/Module/Traits/`)
 
-- Use the `Trait` suffix
-- Global traits in `app/Traits/`
-- Module traits in `app/Services/Module/Traits/`
-- Single, focused concern per trait
+-   Use the `Trait` suffix
+-   Global traits in `app/Traits/`
+-   Module traits in `app/Services/Module/Traits/`
+-   Single, focused concern per trait
 
 ### Form Requests (`app/Http/Requests/`)
 
-- Use the `Request` suffix
-- Organize by module
-- Put authorization in `authorize()`
-- Use enums with `Rule::enum()`
+-   Use the `Request` suffix
+-   Organize by module
+-   Put authorization in `authorize()`
+-   Use enums with `Rule::enum()`
 
 ### Resources (`app/Http/Resources/`)
 
-- Use the `Resource` suffix
-- Organize by module
-- Use ISO 8601 for dates
-- Transform to a consistent API shape
+-   Use the `Resource` suffix
+-   Organize by module
+-   Use ISO 8601 for dates
+-   Transform to a consistent API shape
 
 ### Controllers (`app/Http/Controllers/`)
 
-- Use the `Controller` suffix
-- Organize by module
-- Keep controllers thin; delegate to services
-- Use type hints and dependency injection
-- Use form requests for validation
+-   Use the `Controller` suffix
+-   Organize by module
+-   Keep controllers thin; delegate to services
+-   Use type hints and dependency injection
+-   Use form requests for validation
 
 ---
 
@@ -326,9 +329,10 @@ DTOs are always Spatie Laravel Data objects.
 See [Error Handling Specifications](./error-handling.md) for full rules.
 
 In this context:
-- Do not swallow exceptions or return "safe" but invalid values
-- Do not add defaults for required data just to avoid errors
-- Prefer validation, typed constructors, and DTOs over nullable state
+
+-   Do not swallow exceptions or return "safe" but invalid values
+-   Do not add defaults for required data just to avoid errors
+-   Prefer validation, typed constructors, and DTOs over nullable state
 
 ---
 
@@ -337,8 +341,9 @@ In this context:
 ### Avoid Singletons in Service Providers
 
 **Rules:**
-- Do not register stateful services as singletons
-- Prefer per-request bindings and constructor injection
+
+-   Do not register stateful services as singletons
+-   Prefer per-request bindings and constructor injection
 
 ### Don't Store Request Data on Long-Lived Services
 
@@ -350,21 +355,21 @@ In this context:
 
 Before committing code:
 
-- [ ] Laravel conventional files created using `php artisan make:*` commands
-- [ ] Appropriate suffix added to class names (except models, enums, DTOs)
-- [ ] Files organized into module subdirectories where applicable
-- [ ] Controllers delegate to services for business logic
-- [ ] Controllers return API resources (transformed to json by Laravel automatically)
-- [ ] Services use DTOs for data transfer
-- [ ] Custom casts in `app/Casts/`
-- [ ] Exceptions organized by module in `app/Exceptions/`
-- [ ] Policies in `app/Policies/` with account_id checks
-- [ ] Jobs in `app/Jobs/` with module organization
-- [ ] Contracts defined for key abstractions
-- [ ] Code fails loudly — no silent failures or misleading defaults
-- [ ] Required values are never defaulted to values that hide failures
-- [ ] No singletons used in service providers
-- [ ] No request-specific data stored in class properties
+-   [ ] Laravel conventional files created using `php artisan make:*` commands
+-   [ ] Appropriate suffix added to class names (except models, enums, DTOs)
+-   [ ] Files organized into module subdirectories where applicable
+-   [ ] Controllers delegate to services for business logic
+-   [ ] Controllers return API resources (transformed to json by Laravel automatically)
+-   [ ] Services use DTOs for data transfer
+-   [ ] Custom casts in `app/Casts/`
+-   [ ] Exceptions organized by module in `app/Exceptions/`
+-   [ ] Policies in `app/Policies/` with account_id checks
+-   [ ] Jobs in `app/Jobs/` with module organization
+-   [ ] Contracts defined for key abstractions
+-   [ ] Code fails loudly — no silent failures or misleading defaults
+-   [ ] Required values are never defaulted to values that hide failures
+-   [ ] No singletons used in service providers
+-   [ ] No request-specific data stored in class properties
 
 ---
 
@@ -382,9 +387,9 @@ Database design rules for all GRS migrations and schemas.
 
 Tables must use a module prefix:
 
-- Calendar: `calendar_credentials`, `calendar_sync_states`, `calendar_sync_logs`
-- Email: `email_templates`, `email_schedules`
-- CRM: `crm_contacts`, `crm_deals`
+-   Calendar: `calendar_credentials`, `calendar_sync_states`, `calendar_sync_logs`
+-   Email: `email_templates`, `email_schedules`
+-   CRM: `crm_contacts`, `crm_deals`
 
 ---
 
@@ -414,17 +419,19 @@ Schema::create('calendar_sync_logs', function (Blueprint $table) {
 
 **Use `->nullOnDelete()` for all foreign keys except `account_id`.**
 
-- Most foreign keys should be `nullable` and use `->nullOnDelete()` to preserve records when related data is deleted
-- Only `account_id` uses `->cascadeOnDelete()` for tenant isolation (when an account is deleted, all related data is purged)
+-   Most foreign keys should be `nullable` and use `->nullOnDelete()` to preserve records when related data is deleted
+-   Only `account_id` uses `->cascadeOnDelete()` for tenant isolation (when an account is deleted, all related data is purged)
 
 ### Examples:
 
 **Account foreign key (always cascades):**
+
 ```php
 $table->foreignId('account_id')->constrained()->cascadeOnDelete();
 ```
 
 **Other foreign keys (nullable with nullOnDelete):**
+
 ```php
 $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
 $table->foreignId('calendar_id')->nullable()->constrained('calendars')->nullOnDelete();
@@ -433,22 +440,23 @@ $table->foreignId('supervisor_id')->nullable()->constrained('users')->nullOnDele
 
 ### Rules
 
-- Use `->constrained()` without a table name when the foreign key matches the convention (`{table}_id` → `{table}`)
-- Explicitly specify the table name if it doesn't follow convention: `->constrained('custom_table_name')`
-- **`account_id` always uses `->cascadeOnDelete()`** — no exceptions
-- **All other foreign keys use `->nullable()->constrained()->nullOnDelete()`** by default
-- **Never use legacy syntax**: `$table->foreign('column')->references('id')->on('table')`
-- **Never use custom constraint names** — let Laravel generate them
+-   Use `->constrained()` without a table name when the foreign key matches the convention (`{table}_id` → `{table}`)
+-   Explicitly specify the table name if it doesn't follow convention: `->constrained('custom_table_name')`
+-   **`account_id` always uses `->cascadeOnDelete()`** — no exceptions
+-   **All other foreign keys use `->nullable()->constrained()->nullOnDelete()`** by default
+-   **Never use legacy syntax**: `$table->foreign('column')->references('id')->on('table')`
+-   **Never use custom constraint names** — let Laravel generate them
 
 ---
 
 ## Indexes
 
 Add indexes to:
-- Foreign keys
-- Frequent WHERE/JOIN/ORDER BY columns
-- Search/filter fields
-- Compound query keys
+
+-   Foreign keys
+-   Frequent WHERE/JOIN/ORDER BY columns
+-   Search/filter fields
+-   Compound query keys
 
 Preferred syntax:
 
@@ -461,11 +469,11 @@ $table->string('status')->index();
 
 Rules:
 
-- Use `->index()` on individual columns
-- Use `->unique()` where required
-- Use `->nullable()->index()` for optional indexed columns
-- Do not specify custom index names
-- Do not use legacy index syntax
+-   Use `->index()` on individual columns
+-   Use `->unique()` where required
+-   Use `->nullable()->index()` for optional indexed columns
+-   Do not specify custom index names
+-   Do not use legacy index syntax
 
 ---
 
@@ -476,6 +484,7 @@ Rules:
 Use strings/ints validated against application-level enums:
 
 **Application enum (app/Enums/SyncStatus.php):**
+
 ```php
 enum SyncStatus: string
 {
@@ -487,11 +496,13 @@ enum SyncStatus: string
 ```
 
 **Migration:**
+
 ```php
 $table->string('status'); // Not enum() — use string
 ```
 
 **Validation:**
+
 ```php
 $validated = $request->validate([
     'status' => ['required', Rule::enum(SyncStatus::class)],
@@ -504,10 +515,10 @@ $validated = $request->validate([
 
 Rules:
 
-- You may add `account_id` anywhere it simplifies queries
-- Document denormalization decisions (migration comment or commit)
-- Only denormalize for clear performance/operational benefit
-- Keep foreign key constraints even on denormalized fields
+-   You may add `account_id` anywhere it simplifies queries
+-   Document denormalization decisions (migration comment or commit)
+-   Only denormalize for clear performance/operational benefit
+-   Keep foreign key constraints even on denormalized fields
 
 ### Example:
 
@@ -530,11 +541,11 @@ Schema::create('calendar_events', function (Blueprint $table) {
 
 Conventions:
 
-- `snake_case` only
-- Foreign keys: `{table}_id` (singular table name)
-- Booleans: `is_*` (e.g., `is_active`, `is_deleted`)
-- Timestamps: `created_at`, `updated_at`
-- Soft deletes: `deleted_at`
+-   `snake_case` only
+-   Foreign keys: `{table}_id` (singular table name)
+-   Booleans: `is_*` (e.g., `is_active`, `is_deleted`)
+-   Timestamps: `created_at`, `updated_at`
+-   Soft deletes: `deleted_at`
 
 ### Date & Time Columns
 
@@ -542,10 +553,10 @@ For naming patterns (`*_at`, `*_on`, `*_time`, `*_epoch`) and storage rules, see
 
 Bad practices (avoid):
 
-- Compound foreign key names: `calendar_user_id_start_datetime`
-- CamelCase: `createdAt`, `userId`
-- Abbreviations: `usr_id`, `acct_id`
-- Custom naming schemes
+-   Compound foreign key names: `calendar_user_id_start_datetime`
+-   CamelCase: `createdAt`, `userId`
+-   Abbreviations: `usr_id`, `acct_id`
+-   Custom naming schemes
 
 Good example:
 
@@ -565,19 +576,21 @@ $table->timestamps();
 
 Aggregation suffixes:
 
-- `_count` — counts (`events_synced_count`)
-- `_sum` — sums (`revenue_sum`)
-- `_avg` — averages (`rating_avg`)
-- `_min` — minimums (`price_min`)
-- `_max` — maximums (`price_max`)
+-   `_count` — counts (`events_synced_count`)
+-   `_sum` — sums (`revenue_sum`)
+-   `_avg` — averages (`rating_avg`)
+-   `_min` — minimums (`price_min`)
+-   `_max` — maximums (`price_max`)
 
 Good examples:
+
 ```php
 $table->integer('events_synced_count')->default(0);
 $table->unsignedInteger('user_count')->default(0);
 ```
 
 Bad examples:
+
 ```php
 $table->integer('events_synced'); // Unclear: count? JSON? Event IDs?
 $table->integer('revenue');        // Could be sum, average, or single value
@@ -590,6 +603,7 @@ $table->integer('revenue');        // Could be sum, average, or single value
 Use `ext_id` for any identifier from an external system:
 
 Example:
+
 ```php
 $table->string('ext_id')->nullable();  // External ID from third-party system
 ```
@@ -601,10 +615,11 @@ $table->string('ext_id')->nullable();  // External ID from third-party system
 ### Rule: Never Expose Database IDs Publicly
 
 Internal code uses `id`. Public-facing interfaces use `uuid` instead of `id`:
-- REST APIs
-- Admin portals
-- User-facing applications
-- Third-party integrations
+
+-   REST APIs
+-   Admin portals
+-   User-facing applications
+-   Third-party integrations
 
 ### Implementation
 
@@ -623,12 +638,14 @@ Schema::create('calendar_events', function (Blueprint $table) {
 ### Usage Patterns
 
 **Internal (Service Layer):**
+
 ```php
 // Use id for internal lookups
 $event = CalendarEvent::find($id); // or findOrFail()
 ```
 
 **Public APIs:**
+
 ```php
 // Route accepts UUID
 Route::get('/api/events/{uuid}', EventController::class);
@@ -642,6 +659,7 @@ public function show(string $uuid)
 ```
 
 **API Resources:**
+
 ```php
 class EventResource extends JsonResource
 {
@@ -695,18 +713,18 @@ Omit timestamps only for purely transactional or log tables where history is tra
 
 Before committing any migration:
 
-- [ ] Module-based table prefix is applied
-- [ ] `account_id` is present and properly constrained
-- [ ] Foreign keys use modern fluent syntax (`->constrained()`)
-- [ ] Foreign keys have appropriate cascade behavior
-- [ ] Indexes are applied with `->index()` (no custom names)
-- [ ] No database enums are used
-- [ ] Column names follow `snake_case` convention
-- [ ] Aggregation columns use clear suffixes (`_count`, `_sum`, `_avg`, etc.)
-- [ ] External IDs use `ext_id` naming
-- [ ] Public-facing tables have `uuid` column (never expose `id`)
-- [ ] No custom constraint or index names are specified
-- [ ] Denormalization is documented if present
+-   [ ] Module-based table prefix is applied
+-   [ ] `account_id` is present and properly constrained
+-   [ ] Foreign keys use modern fluent syntax (`->constrained()`)
+-   [ ] Foreign keys have appropriate cascade behavior
+-   [ ] Indexes are applied with `->index()` (no custom names)
+-   [ ] No database enums are used
+-   [ ] Column names follow `snake_case` convention
+-   [ ] Aggregation columns use clear suffixes (`_count`, `_sum`, `_avg`, etc.)
+-   [ ] External IDs use `ext_id` naming
+-   [ ] Public-facing tables have `uuid` column (never expose `id`)
+-   [ ] No custom constraint or index names are specified
+-   [ ] Denormalization is documented if present
 
 ---
 
@@ -731,12 +749,12 @@ GRS date/time rules for storage and multi-timezone behavior.
 
 Use these patterns across all tables:
 
-| Pattern | Type | Example | Usage |
-|---------|------|---------|-------|
-| `*_at` | DateTime | `created_at`, `synced_at`, `expires_at` | Datetime stored as UTC |
-| `*_on` | Date | `birth_date`, `scheduled_on`, `starts_on` | Date only (no time) |
-| `*_time` | Time | `start_time`, `end_time` | Time only (no date) |
-| `*_epoch` | Integer | `created_epoch`, `timestamp_epoch` | Unix timestamp (seconds) |
+| Pattern   | Type     | Example                                      | Usage                    |
+| --------- | -------- | -------------------------------------------- | ------------------------ |
+| `*_at`    | DateTime | `created_at`, `synced_at`, `expires_at`      | Datetime stored as UTC   |
+| `*_on`    | Date     | `birth_date_on`, `scheduled_on`, `starts_on` | Date only (no time)      |
+| `*_time`  | Time     | `start_time`, `end_time`                     | Time only (no date)      |
+| `*_epoch` | Integer  | `created_epoch`, `timestamp_epoch`           | Unix timestamp (seconds) |
 
 ### Examples
 
@@ -747,7 +765,7 @@ $table->dateTime('synced_at')->nullable();
 $table->dateTime('expires_at')->nullable();
 
 // Date-only columns
-$table->date('birth_date');
+$table->date('birth_date_on');
 $table->date('scheduled_on');
 
 // Time-only columns
@@ -762,8 +780,8 @@ $table->unsignedBigInteger('created_epoch')->nullable();
 
 ## Using Carbon
 
-- Import `Illuminate\Support\Carbon` (and `CarbonImmutable` where needed)
-- Prefer `Carbon` for regular business logic; `CarbonImmutable` for domain events/value objects
+-   Import `Illuminate\Support\Carbon` (and `CarbonImmutable` where needed)
+-   Prefer `Carbon` for regular business logic; `CarbonImmutable` for domain events/value objects
 
 ---
 
@@ -985,7 +1003,7 @@ $table->dateTime('scheduled_at')->useCurrent();
 
 ```php
 // Date only (no timezone considerations)
-$table->date('birth_date');
+$table->date('birth_date_on');
 
 // Time only (no timezone considerations)
 $table->time('shift_start_time');
@@ -1061,14 +1079,14 @@ public function test_event_expires()
 
 Before committing code that handles dates:
 
-- [ ] All datetime columns use `*_at` naming convention
-- [ ] All dates stored in database are UTC
-- [ ] Models cast datetime columns to Carbon
-- [ ] User timezone conversion happens only for display/input
-- [ ] Queries use UTC timestamps with `Carbon::now('UTC')`
-- [ ] No usage of PHP's `date()` or native `DateTime` in business logic
-- [ ] No timezone information stored in database (except user preferences)
-- [ ] Immutable Carbon used for domain events if applicable
+-   [ ] All datetime columns use `*_at` naming convention
+-   [ ] All dates stored in database are UTC
+-   [ ] Models cast datetime columns to Carbon
+-   [ ] User timezone conversion happens only for display/input
+-   [ ] Queries use UTC timestamps with `Carbon::now('UTC')`
+-   [ ] No usage of PHP's `date()` or native `DateTime` in business logic
+-   [ ] No timezone information stored in database (except user preferences)
+-   [ ] Immutable Carbon used for domain events if applicable
 
 ---
 
@@ -1080,29 +1098,28 @@ Testing standards for GRS using **Pest**.
 
 ---
 
-
 ## Test Types
 
 ### Unit Tests
 
-- No DB
-- No HTTP
-- Single method/function focus
-- Location: `tests/Unit/`
+-   No DB
+-   No HTTP
+-   Single method/function focus
+-   Location: `tests/Unit/`
 
 ### Feature Tests
 
-- HTTP-level features
-- May hit DB
-- Smaller scope than integration
-- Location: `tests/Feature/`
+-   HTTP-level features
+-   May hit DB
+-   Smaller scope than integration
+-   Location: `tests/Feature/`
 
 ### Integration Tests
 
-- End-to-end workflows
-- Cross-module behavior
-- May involve external services
-- Location: `tests/Integration/`
+-   End-to-end workflows
+-   Cross-module behavior
+-   May involve external services
+-   Location: `tests/Integration/`
 
 ---
 
@@ -1110,8 +1127,8 @@ Testing standards for GRS using **Pest**.
 
 ### Preferred Syntax
 
-- Prefer `test()` for defining cases
-- `it()` is allowed but `test()` is the default style
+-   Prefer `test()` for defining cases
+-   `it()` is allowed but `test()` is the default style
 
 ---
 
@@ -1131,8 +1148,8 @@ This allows external tests to be skipped or run separately.
 
 ## Test Datasets
 
-- Reusable datasets live in `tests/Datasets/*Dataset.php`
-- Name datasets descriptively (e.g. `valid articles`, `invalid articles`)
+-   Reusable datasets live in `tests/Datasets/*Dataset.php`
+-   Name datasets descriptively (e.g. `valid articles`, `invalid articles`)
 
 ```php
 // tests/Datasets/ArticleDataset.php
@@ -1278,9 +1295,10 @@ test('handler processes ticket with mocked services', function () {
 ```
 
 Key points:
-- Use `Mockery::mock()`
-- Use `shouldReceive()` / `andReturn()`
-- Assert the behavior that matters
+
+-   Use `Mockery::mock()`
+-   Use `shouldReceive()` / `andReturn()`
+-   Assert the behavior that matters
 
 ---
 
@@ -1368,9 +1386,10 @@ test('handles API errors gracefully', function () {
 ```
 
 Key points:
-- Use `Http::fake()` to prevent real network requests
-- Use wildcards (`*`) for dynamic endpoints
-- Use `Http::assertSent()` and `Http::assertSentCount()`
+
+-   Use `Http::fake()` to prevent real network requests
+-   Use wildcards (`*`) for dynamic endpoints
+-   Use `Http::assertSent()` and `Http::assertSentCount()`
 
 ---
 
@@ -1458,15 +1477,15 @@ test('throws exception for invalid input', function () {
 
 ## Summary
 
-- Prefer `test()`
-- Organize by type: Unit, Feature, Integration
-- Use `expect()` over `$this->assert*()`
-- Use `action()` and HTTP helpers for controllers
-- Group external HTTP tests with `external`
-- Keep datasets in `tests/Datasets/`
-- Use Mockery for dependencies
-- Use `Http::fake()` + `Http::assertSent*()` for external HTTP
-- Keep tests focused and isolated
+-   Prefer `test()`
+-   Organize by type: Unit, Feature, Integration
+-   Use `expect()` over `$this->assert*()`
+-   Use `action()` and HTTP helpers for controllers
+-   Group external HTTP tests with `external`
+-   Keep datasets in `tests/Datasets/`
+-   Use Mockery for dependencies
+-   Use `Http::fake()` + `Http::assertSent*()` for external HTTP
+-   Keep tests focused and isolated
 
 ---
 
@@ -1480,12 +1499,12 @@ Error handling rules for GRS. Assume Laravel conventions and apply these project
 
 ## Core Principles
 
-- **Fail loudly, never quietly**
-- **When in doubt, throw an exception**
-- **Never hide or auto-fix an error**
-- **Do not use default values to "avoid" errors**
-- **Use specific exception classes, not generic `Exception`**
-- **Exception messages must include helpful context (IDs, account, etc.)**
+-   **Fail loudly, never quietly**
+-   **When in doubt, throw an exception**
+-   **Never hide or auto-fix an error**
+-   **Do not use default values to "avoid" errors**
+-   **Use specific exception classes, not generic `Exception`**
+-   **Exception messages must include helpful context (IDs, account, etc.)**
 
 These apply everywhere: controllers, services, jobs, listeners, console commands, and background workers.
 
@@ -1495,9 +1514,9 @@ These apply everywhere: controllers, services, jobs, listeners, console commands
 
 Code must fail **immediately and explicitly** when something is wrong.
 
-- Do not swallow exceptions or return "safe" but invalid values just to keep code running
-- Do not catch-and-ignore exceptions; only catch if you can handle them meaningfully
-- Prefer Laravel's validation and typed inputs over nullable parameters
+-   Do not swallow exceptions or return "safe" but invalid values just to keep code running
+-   Do not catch-and-ignore exceptions; only catch if you can handle them meaningfully
+-   Prefer Laravel's validation and typed inputs over nullable parameters
 
 Bad:
 
@@ -1523,9 +1542,9 @@ $service->handle($payload); // throws a domain-specific exception if invalid
 
 Do **not** use default values to mask missing or invalid data.
 
-- Enforce required values via validation or explicit checks
-- Never default a required value just to avoid an error
-- If required input is missing or invalid, throw (or let validation fail) instead of guessing
+-   Enforce required values via validation or explicit checks
+-   Never default a required value just to avoid an error
+-   If required input is missing or invalid, throw (or let validation fail) instead of guessing
 
 Bad:
 
@@ -1552,9 +1571,9 @@ Laravel controllers should normally rely on form request validation rather than 
 
 Logging alone does **not** fix a bug.
 
-- Do not replace proper error handling with `Log::warning()`, `Log::info()`, or similar
-- Logs are for observability; exceptions are for control flow on error paths
-- If something is broken, throw (or let Laravel throw) and log in addition if helpful
+-   Do not replace proper error handling with `Log::warning()`, `Log::info()`, or similar
+-   Logs are for observability; exceptions are for control flow on error paths
+-   If something is broken, throw (or let Laravel throw) and log in addition if helpful
 
 Bad:
 
@@ -1582,11 +1601,11 @@ Use Laravel's built-in exceptions (`ModelNotFoundException`, `AuthorizationExcep
 
 Always choose the **most specific** exception type:
 
-- Validation issues → let Laravel form requests / `Validator` throw `ValidationException`
-- Missing models → `ModelNotFoundException` or `firstOrFail()` / `findOrFail()`
-- Authorization issues → `AuthorizationException` / `Gate::authorize()`
-- Domain errors → custom exceptions like `InvalidTriageStateException`
-- Invalid arguments → `InvalidArgumentException`
+-   Validation issues → let Laravel form requests / `Validator` throw `ValidationException`
+-   Missing models → `ModelNotFoundException` or `firstOrFail()` / `findOrFail()`
+-   Authorization issues → `AuthorizationException` / `Gate::authorize()`
+-   Domain errors → custom exceptions like `InvalidTriageStateException`
+-   Invalid arguments → `InvalidArgumentException`
 
 Avoid `throw new \Exception('error');` in production code.
 
@@ -1614,9 +1633,9 @@ throw new CannotFindResourceForAccount("resource_id={$id} account_id={$accountId
 
 Exception messages must include enough context to debug quickly.
 
-- Include key identifiers: IDs, account IDs, external IDs, module names
-- Briefly describe what was attempted and why it failed
-- Avoid generic messages like `"error"` or `"something went wrong"`
+-   Include key identifiers: IDs, account IDs, external IDs, module names
+-   Briefly describe what was attempted and why it failed
+-   Avoid generic messages like `"error"` or `"something went wrong"`
 
 Bad:
 
@@ -1638,9 +1657,9 @@ throw new InvalidArgumentException(
 
 These rules sit on top of Laravel's normal patterns:
 
-- Prefer form request validation and typed DTOs over manual `isset()`/`empty()` checks
-- Use `abort_if` / `abort_unless` / `throw_if` / `throw_unless` helpers where they improve clarity
-- Let Laravel's exception handler convert exceptions into HTTP responses; do not manually suppress them
+-   Prefer form request validation and typed DTOs over manual `isset()`/`empty()` checks
+-   Use `abort_if` / `abort_unless` / `throw_if` / `throw_unless` helpers where they improve clarity
+-   Let Laravel's exception handler convert exceptions into HTTP responses; do not manually suppress them
 
 If you are unsure whether to log or throw, **throw** (and optionally log) rather than silently continuing.
 
@@ -1650,9 +1669,9 @@ If you are unsure whether to log or throw, **throw** (and optionally log) rather
 
 Before committing error-handling code:
 
-- [ ] No exceptions are swallowed or ignored
-- [ ] No required values are defaulted just to "avoid" errors
-- [ ] Logging is not used as a substitute for proper exceptions
-- [ ] Exception classes are specific and appropriate
-- [ ] Exception messages include relevant IDs/context
-- [ ] Laravel validation and helpers are used where appropriate
+-   [ ] No exceptions are swallowed or ignored
+-   [ ] No required values are defaulted just to "avoid" errors
+-   [ ] Logging is not used as a substitute for proper exceptions
+-   [ ] Exception classes are specific and appropriate
+-   [ ] Exception messages include relevant IDs/context
+-   [ ] Laravel validation and helpers are used where appropriate

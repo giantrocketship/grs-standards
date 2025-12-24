@@ -94,7 +94,8 @@ Rules:
 - Use `->index()` on individual columns
 - Use `->unique()` where required
 - Use `->nullable()->index()` for optional indexed columns
-- Do not specify custom index names
+- Let Laravel generate index names by default (preferred)
+- If you must name an index manually, follow Laravel's pattern: `{table}_{column1}_{column2}_{type}` where `{type}` is `index`, `unique`, or `foreign`
 - Do not use legacy index syntax
 
 ---
@@ -329,7 +330,7 @@ Before committing any migration:
 - [ ] `account_id` is present and properly constrained
 - [ ] Foreign keys use modern fluent syntax (`->constrained()`)
 - [ ] Foreign keys have appropriate cascade behavior
-- [ ] Indexes are applied with `->index()` (no custom names)
+- [ ] Indexes are applied with `->index()` and use Laravel's default naming (no custom names unless required)
 - [ ] No database enums are used
 - [ ] Column names follow `snake_case` convention
 - [ ] Aggregation columns use clear suffixes (`_count`, `_sum`, `_avg`, etc.)

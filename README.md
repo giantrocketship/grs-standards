@@ -82,6 +82,7 @@ Any deviation from these specifications **must be explicitly discussed and appro
 
 ## Technology Stack
 
+- **PHP 8.4** — Runtime
 - **Laravel 12** — Core framework
 - **Laravel Octane** — High-performance runtime
 - **Laravel Sail** — Local development environment

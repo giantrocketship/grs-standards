@@ -22,7 +22,7 @@ Use these patterns across all tables:
 | Pattern | Type | Example | Usage |
 |---------|------|---------|-------|
 | `*_at` | DateTime | `created_at`, `synced_at`, `expires_at` | Datetime stored as UTC |
-| `*_on` | Date | `birth_date`, `scheduled_on`, `starts_on` | Date only (no time) |
+| `*_on` | Date | `birth_date_on`, `scheduled_on`, `starts_on` | Date only (no time) |
 | `*_time` | Time | `start_time`, `end_time` | Time only (no date) |
 | `*_epoch` | Integer | `created_epoch`, `timestamp_epoch` | Unix timestamp (seconds) |
 
@@ -35,7 +35,7 @@ $table->dateTime('synced_at')->nullable();
 $table->dateTime('expires_at')->nullable();
 
 // Date-only columns
-$table->date('birth_date');
+$table->date('birth_date_on');
 $table->date('scheduled_on');
 
 // Time-only columns
@@ -273,7 +273,7 @@ $table->dateTime('scheduled_at')->useCurrent();
 
 ```php
 // Date only (no timezone considerations)
-$table->date('birth_date');
+$table->date('birth_date_on');
 
 // Time only (no timezone considerations)
 $table->time('shift_start_time');
