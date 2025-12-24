@@ -3,15 +3,22 @@ name: Build Copilot Instructions
 on:
     push:
         branches:
-            - "**"
+            - main
+
+permissions:
+    contents: write
 
 jobs:
     build-copilot-instructions:
+        # Avoid infinite loops when this workflow commits changes
+        if: github.actor != 'github-actions[bot]'
         runs-on: ubuntu-latest
 
         steps:
             - name: Check out repository
               uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
 
             - name: Generate consolidated copilot instructions
               run: |
@@ -42,8 +49,18 @@ jobs:
                     cat sections/testing.md
                   } > "$OUT"
 
-            - name: Upload copilot instructions artifact
-              uses: actions/upload-artifact@v4
-              with:
-                  name: copilot-instructions
-                  path: copilot-instructions.md
+            - name: Commit and push if changed
+              run: |
+                  set -euo pipefail
+
+                  if git diff --quiet -- copilot-instructions.md; then
+                    echo "copilot-instructions.md is up to date; nothing to commit."
+                    exit 0
+                  fi
+
+                  git config user.name "github-actions[bot]"
+                  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+                  git add copilot-instructions.md
+                  git commit -m "chore: update copilot-instructions [ci skip]"
+                  git push
