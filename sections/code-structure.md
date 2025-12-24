@@ -214,14 +214,12 @@ DTOs are always Spatie Laravel Data objects.
 
 ## Error Handling & Failure Modes
 
-### Fail Loudly, Never Silently
+See [Error Handling Specifications](./error-handling.md) for full rules.
 
-Code must fail **loudly and immediately** when something goes wrong.
-
-**Rules:**
+In this context:
 - Do not swallow exceptions or return "safe" but invalid values
-- Do not add defaults for required data
-- Prefer validation and typed constructors over nullable state
+- Do not add defaults for required data just to avoid errors
+- Prefer validation, typed constructors, and DTOs over nullable state
 
 ---
 

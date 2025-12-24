@@ -20,6 +20,7 @@ Authoritative standards covering:
 - **Database design** — Table naming, foreign keys, indexes, and constraints
 - **Code structure** — Project organization, naming conventions, and architectural patterns
 - **Dates & time handling** — Timezone management and temporal data practices
+ - **Error handling** — Exceptions, logging, and failure behavior
 
 All GRS developers must follow these specifications.
 
@@ -31,6 +32,7 @@ All GRS developers must follow these specifications.
    - [Code structure](./sections/code-structure.md)
    - [Dates & time](./sections/dates.md)
    - [Testing](./sections/testing.md)
+   - [Error handling](./sections/error-handling.md)
 
 ## Guiding Principles
 
