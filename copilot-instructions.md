@@ -24,6 +24,7 @@ Authoritative standards covering:
 - **Database design** — Table naming, foreign keys, indexes, and constraints
 - **Code structure** — Project organization, naming conventions, and architectural patterns
 - **Dates & time handling** — Timezone management and temporal data practices
+ - **Error handling** — Exceptions, logging, and failure behavior
 
 All GRS developers must follow these specifications.
 
@@ -35,6 +36,7 @@ All GRS developers must follow these specifications.
    - [Code structure](./sections/code-structure.md)
    - [Dates & time](./sections/dates.md)
    - [Testing](./sections/testing.md)
+   - [Error handling](./sections/error-handling.md)
 
 ## Guiding Principles
 
@@ -321,14 +323,12 @@ DTOs are always Spatie Laravel Data objects.
 
 ## Error Handling & Failure Modes
 
-### Fail Loudly, Never Silently
+See [Error Handling Specifications](./error-handling.md) for full rules.
 
-Code must fail **loudly and immediately** when something goes wrong.
-
-**Rules:**
+In this context:
 - Do not swallow exceptions or return "safe" but invalid values
-- Do not add defaults for required data
-- Prefer validation and typed constructors over nullable state
+- Do not add defaults for required data just to avoid errors
+- Prefer validation, typed constructors, and DTOs over nullable state
 
 ---
 
