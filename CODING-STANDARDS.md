@@ -34,6 +34,7 @@ All GRS developers must follow these specifications.
 2. Consult the relevant section when changing that area:
    - [Database](./sections/database.md)
    - [Code structure](./sections/code-structure.md)
+   - [Dev/Docker setup](./sections/dev-setup.md)
    - [Dates & time](./sections/dates.md)
    - [Testing](./sections/testing.md)
    - [Error handling](./sections/error-handling.md)
