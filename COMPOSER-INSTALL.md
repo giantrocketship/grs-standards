@@ -16,13 +16,13 @@ Do this once in the **consuming** project’s `composer.json`:
         "giantrocketship/grs-standards": "dev-main"
     },
     "scripts": {
-        "post-install-cmd": [
+        "post-install-grs-standards-cmd": [
             "mkdir -p .github",
             "cp vendor/giantrocketship/grs-standards/copilot-instructions.md .github/copilot-instructions.md || true",
             "cp vendor/giantrocketship/grs-standards/CODING-STANDARDS.md ./CODING-STANDARDS.md || true"
         ],
         "post-update-cmd": [
-            "@post-install-cmd"
+            "@post-install-grs-standards-cmd"
         ]
     }
 }
