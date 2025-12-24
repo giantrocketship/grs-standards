@@ -1,0 +1,49 @@
+name: Build Copilot Instructions
+
+on:
+    push:
+        branches:
+            - "**"
+
+jobs:
+    build-copilot-instructions:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@v4
+
+            - name: Generate consolidated copilot instructions
+              run: |
+                  set -euo pipefail
+                  OUT="copilot-instructions.md"
+
+                  {
+                    echo "# GRS Copilot Instructions"
+                    echo
+                    echo "> Auto-generated from grs-standards. Do not edit by hand; update the source markdown instead."
+                    echo
+                    cat README.md
+                    echo
+                    echo "---"
+                    echo
+                    cat sections/code-structure.md
+                    echo
+                    echo "---"
+                    echo
+                    cat sections/database.md
+                    echo
+                    echo "---"
+                    echo
+                    cat sections/dates.md
+                    echo
+                    echo "---"
+                    echo
+                    cat sections/testing.md
+                  } > "$OUT"
+
+            - name: Upload copilot instructions artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: copilot-instructions
+                  path: copilot-instructions.md
