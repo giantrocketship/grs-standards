@@ -1,0 +1,14 @@
+{
+    "name": "giantrocketship/grs-standards",
+    "description": "Shared GRS coding standards and Copilot instructions (markdown-only package)",
+    "type": "library",
+    "license": "proprietary",
+    "autoload": {
+        "psr-4": {}
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.0.x-dev"
+        }
+    }
+}
