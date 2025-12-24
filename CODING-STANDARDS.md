@@ -1,4 +1,4 @@
-# GRS Copilot Instructions
+# GRS Coding Standards
 
 > Auto-generated from grs-standards. Do not edit by hand; update the source markdown instead.
 
