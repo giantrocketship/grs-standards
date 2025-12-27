@@ -13,6 +13,7 @@ All GRS development repositories **must** support being run and edited inside Do
 - Development must be possible entirely inside containers
 - Source code should be bind-mounted so it can be edited from the host
 - The default `docker-compose up` should start a working dev environment
+- Use sqlite as the database unless otherwise noted.
 
 ---
 
@@ -45,21 +46,29 @@ version: "3.9"
 services:
   app:
     build: .
-    container_name: <myappname>
+    container_name: <repo-name>
     working_dir: /var/www/html
     volumes:
       - ./:/var/www/html
     ports:
       - "8000:8000"
-    env_file:
-      - .env
     depends_on:
       - redis
     command: php artisan serve --host=0.0.0.0 --port=8000
 
+  queue-worker:
+    build: .
+    container_name: <repo-name>_queue
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - redis
+    command: php artisan queue:work redis --sleep=3 --tries=3 --timeout=90
+
   redis:
     image: redis:7-alpine
-    container_name: <myappname>_redis
+    container_name: <repo-name>_redis
     ports:
       - "6379:6379"
     volumes:
@@ -68,6 +77,7 @@ services:
 
 volumes:
   redis-data:
+
 ```
 
 ### Dockerfile
@@ -78,6 +88,10 @@ FROM php:8.4-cli
 # Install system dependencies and PHP extensions required by Laravel
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+    bash \
+    vim \
+    procps \
+    less \
     git \
     unzip \
     libzip-dev \
