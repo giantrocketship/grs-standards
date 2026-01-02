@@ -51,17 +51,22 @@ Example pattern (Triage):
 
 ```
 app/
-├── DTOs/Triage/TriageData.php
-├── Enums/Triage/TriageStatus.php
-├── Exceptions/Triage/InvalidTriageStateException.php
+├── DTOs/SharedUserData.php              # shared across services
+├── Enums/GlobalStatus.php               # shared across services
+├── Exceptions/ExternalServiceException.php
 ├── Http/
 │   ├── Controllers/TriageController.php
 │   ├── Requests/Triage/StoreTriageRequest.php
 │   └── Resources/Triage/TriageResource.php
-├── Jobs/Triage/ProcessTriageJob.php
+├── Jobs/NotifyStakeholdersJob.php       # shared across services
 ├── Models/Triage/Triage.php
-├── Policies/Triage/TriagePolicy.php
+├── Policies/SystemWidePolicy.php
 └── Services/Triage/
+    ├── DTOs/TriageData.php                     # service-specific
+    ├── Enums/TriageStatus.php                  # service-specific
+    ├── Exceptions/InvalidTriageStateException.php
+    ├── Jobs/ProcessTriageJob.php
+    ├── Policies/TriagePolicy.php
     ├── TriageService.php
     ├── AssignmentService.php
     ├── Contracts/TriageRepositoryContract.php
@@ -110,11 +115,11 @@ Always add appropriate suffixes to class files for clarity:
 - Focus models on relationships, casts, scopes
 - Move business logic to services
 
-### Enums (`app/Enums/`)
+### Enums (`app/Services/<Module>/Enums/` and `app/Enums/`)
 
 ```php
-// app/Enums/Triage/TriageStatus.php
-namespace App\Enums\Triage;
+// app/Services/Triage/Enums/TriageStatus.php
+namespace App\Services\Triage\Enums;
 
 enum TriageStatus: string
 {
@@ -125,43 +130,55 @@ enum TriageStatus: string
 ```
 
 **Guidelines:**
-- Organize by module
+- Service-specific enums live under `app/Services/<Module>/Enums/`
+- Only enums intentionally shared across multiple services belong in `app/Enums/`
+- Organize shared enums by module/domain under `app/Enums/...` if needed
 - Use descriptive case names
 - Keep enums simple; move complex logic to services
 
-### Casts (`app/Casts/`)
+### Casts (`app/Services/<Module>/Casts/` and `app/Casts/`)
 
 - Use the `Cast` suffix
-- Organize by module
+- Service-specific casts live under `app/Services/<Module>/Casts/`
+- Only casts intentionally shared across multiple services belong in `app/Casts/`
+- Organize shared casts by module/domain under `app/Casts/...` if needed
 - Register via model `$casts`
 
-### DTOs (`app/DTOs/`)
+### DTOs (`app/Services/<Module>/DTOs/` and `app/DTOs/`)
 
 DTOs are always Spatie Laravel Data objects.
 
 - **Always use Spatie Laravel Data**; do not hand-roll DTOs
-- Organize by module: `app/DTOs/Triage/`, `app/DTOs/Calendar/`, etc.
+- Service-specific DTOs live under `app/Services/<Module>/DTOs/`
+- Only DTOs intentionally shared across multiple services belong in `app/DTOs/`
+- Organize shared DTOs by module/domain under `app/DTOs/...` if needed
 - Suffix is optional: `TriageData.php`, `CreateTriageData.php`
 - Use attributes for validation
 - Use `from()` to create DTOs from requests/models
 - Use DTOs at API and service boundaries; no business logic inside
 
-### Jobs (`app/Jobs/`)
+### Jobs (`app/Services/<Module>/Jobs/` and `app/Jobs/`)
 
 - Use the `Job` suffix
-- Organize by module
+- Service-specific jobs live under `app/Services/<Module>/Jobs/`
+- Only jobs intentionally shared across multiple services belong in `app/Jobs/`
+- Organize shared jobs by module/domain under `app/Jobs/...` if needed
 - Keep jobs focused and idempotent
 
-### Exceptions (`app/Exceptions/`)
+### Exceptions (`app/Services/<Module>/Exceptions/` and `app/Exceptions/`)
 
 - Use the `Exception` suffix
-- Organize by module
+- Service-specific exceptions live under `app/Services/<Module>/Exceptions/`
+- Only exceptions intentionally shared across multiple services belong in `app/Exceptions/`
+- Organize shared exceptions by module/domain under `app/Exceptions/...` if needed
 - Provide meaningful messages and context
 
-### Policies (`app/Policies/`)
+### Policies (`app/Services/<Module>/Policies/` and `app/Policies/`)
 
 - Use the `Policy` suffix
-- Organize by module
+- Service-specific policies live under `app/Services/<Module>/Policies/`
+- Only policies intentionally shared across multiple services belong in `app/Policies/`
+- Organize shared policies by module/domain under `app/Policies/...` if needed
 - Always check `account_id` for tenant isolation
 - Register in `AuthServiceProvider`
 
@@ -174,18 +191,18 @@ DTOs are always Spatie Laravel Data objects.
 - Use DTOs for data transfer
 - Dispatch jobs for async work
 
-### Contracts/Interfaces (`app/Contracts/` or `app/Services/Module/Contracts/`)
+### Contracts/Interfaces (`app/Services/<Module>/Contracts/` and `app/Contracts/`)
 
 - Use `Interface` suffix: `TriageRepositoryInterface.php`
-- Core/global contracts in `app/Contracts/`
-- Module-specific contracts in `app/Services/Module/Contracts/`
+- Service-specific contracts live under `app/Services/<Module>/Contracts/`
+- Only contracts intentionally shared across multiple services go in `app/Contracts/`
 - Bind interfaces to implementations in service providers
 
-### Traits (`app/Traits/` or `app/Services/Module/Traits/`)
+### Traits (`app/Services/<Module>/Traits/` and `app/Traits/`)
 
 - Use the `Trait` suffix
-- Global traits in `app/Traits/`
-- Module traits in `app/Services/Module/Traits/`
+- Service-specific traits live under `app/Services/<Module>/Traits/`
+- Only traits intentionally shared across multiple services go in `app/Traits/`
 - Single, focused concern per trait
 
 ### Form Requests (`app/Http/Requests/`)

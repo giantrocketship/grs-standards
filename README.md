@@ -42,6 +42,9 @@ All GRS developers must follow these specifications.
 - Avoid premature abstraction
 - Code must be production-ready, testable, and maintainable
 - Always consider Octane performance characteristics
+ - Place **service-specific classes** (DTOs, contracts, actions, jobs, etc.)
+    under `app/Services/<ServiceName>/...`; only **shared, cross-service classes**
+    belong in roots like `app/DTOs`, `app/Contracts`, etc.
 
 ## Authority & Scope
 
