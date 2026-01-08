@@ -225,9 +225,53 @@ Always add appropriate suffixes to class files for clarity:
 
 ### Models (`app/Models/`)
 
-- Use module subdirectories
-- Focus models on relationships, casts, scopes
+**Directory Structure:**
+- All models live in `app/Models/`
+- Feature-specific models live in dedicated subdirectories: `app/Models/FeatureName/`
+- Example: `app/Models/Triage/Triage.php`, `app/Models/UnifiedCalendar/WorkSchedule.php`
+
+**Requirements:**
+- Every model **must have a `$fillable` array** listing all mass-assignable columns (except `id`)
+- Every model **must have a corresponding factory** in `database/factories/FeatureName/ModelNameFactory.php`
+- Every model **must cast columns** appropriately:
+  - Boolean columns: `'is_active' => 'boolean'`
+  - Enum columns: `'status' => StatusEnum::class`
+  - Date/datetime columns: `'created_at' => 'datetime'`, `'scheduled_on' => 'date'`
+  - JSON columns: `'config' => 'array'`
+- Focus models on relationships, casts, and scopes
 - Move business logic to services
+
+**Example:**
+```php
+// app/Models/UnifiedCalendar/WorkSchedule.php
+class WorkSchedule extends Model
+{
+    use HasFactory;
+
+    protected $table = 'ucal_work_schedules';
+
+    protected $fillable = [
+        'account_id',
+        'user_id',
+        'schedule_layer_id',
+        'weekday',
+        'starts_time',
+        'ends_time',
+        'title',
+        'notes',
+        'created_at',
+        'updated_at',
+    ];
+
+    protected $casts = [
+        'weekday' => 'integer',
+        'starts_time' => 'string',
+        'ends_time' => 'string',
+    ];
+
+    // relationships, scopes, etc.
+}
+```
 
 ### Enums (`app/Services/<Module>/Enums/` and `app/Enums/`)
 
@@ -351,6 +395,72 @@ In this context:
 - Do not swallow exceptions or return "safe" but invalid values
 - Do not add defaults for required data just to avoid errors
 - Prefer validation, typed constructors, and DTOs over nullable state
+
+---
+
+## Database Access Patterns
+
+**Golden Rule: Use Eloquent Models, not `DB::table()`**
+
+The `DB` facade should **only** be used in:
+- Migration files (`up()` and `down()` methods)
+- Seeder files (when inserting/updating in bulk)
+- `DB::transaction()` for transaction management (allowed everywhere)
+
+### ❌ Forbidden Patterns
+
+**Never use `DB::table()` for queries:**
+
+```php
+// WRONG: Direct table access in services/controllers
+$users = DB::table('users')
+    ->where('account_id', $accountId)
+    ->get();
+
+$defaults = DB::table('ucal_account_layer_defaults')
+    ->where('account_id', $accountId)
+    ->get();
+
+// WRONG: Direct insert/update outside migrations
+DB::table('users')->insert(['name' => 'John']);
+DB::table('orders')->where('id', $id)->update(['status' => 'shipped']);
+```
+
+### ✅ Correct Patterns
+
+**Use Eloquent Models for all queries:**
+
+```php
+// CORRECT: Use models
+$users = User::where('account_id', $accountId)->get();
+
+$defaults = AccountLayerDefault::where('account_id', $accountId)->get();
+
+$user = User::create(['name' => 'John']);
+
+$order = Order::find($id);
+$order->update(['status' => 'shipped']);
+```
+
+**Use transactions with `DB::transaction()`:**
+
+```php
+// CORRECT: Use DB::transaction() for transaction management
+DB::transaction(function () {
+    $order = Order::create([/* ... */]);
+    $order->items()->create([/* ... */]);
+    $order->calculateTotals();
+});
+```
+
+### Why This Matters
+
+- **Type safety**: Models provide IDE autocomplete and static analysis
+- **Relationships**: Models enable lazy/eager loading and relationship access
+- **Casts**: Models automatically cast columns (boolean, date, enum, etc.)
+- **Scopes**: Models support local/global scopes for query reusability
+- **Events**: Models support lifecycle hooks (`created`, `updating`, etc.)
+- **Consistency**: Laravel convention is models, not raw queries
 
 ---
 
