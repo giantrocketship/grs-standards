@@ -8,7 +8,7 @@ Directory structure, file organization, and naming conventions specific to GRS.
 
 ## Core Principle: Use Artisan Make Commands
 
-**Never create classes by hand.** Use `php artisan make:*` so:
+Use `php artisan make:*` to create files and follow Laravel conventions and expected structure. Ensure files land in the correct folder, or move them to the correct folder after default creation.
 
 - Paths and namespaces follow Laravel
 - Base classes/traits are correct
@@ -18,22 +18,32 @@ Directory structure, file organization, and naming conventions specific to GRS.
 
 ## Directory Structure Overview
 
-Only the high-level layout is standardized:
+High-level layout is standardized:
 
 ```
 app/
+├── Actions/
+├── Attributes/
 ├── Casts/
-├── Contracts/
+├── Console/Commands/
 ├── DTOs/
 ├── Enums/
 ├── Exceptions/
+├── Filament/
 ├── Http/
 │   ├── Controllers/
 │   ├── Requests/
 │   └── Resources/
 ├── Jobs/
 ├── Models/
+│   ├── [FeatureName]/
+│   │   ├── FeatureModelA.php
+│   │   └── FeatureModelB.php
+│   ├── Account.php
+│   └── User.php
+├── Observers/
 ├── Policies/
+├── Providers/
 └── Services/
 ```
 
@@ -41,36 +51,79 @@ app/
 
 ## Module-Based Organization
 
-Group by module under each directory.
+While developing a feature, you must follow the model developing logic: create a folder named after the feature inside `app/Services/`, and all files dedicated to the feature must live within that folder.
 
 General rules:
-- Keep module names consistent across layers (DTOs, Enums, Http, Jobs, Models, Policies, Services, etc.)
+- Keep module names consistent across layers (DTOs, Enums, Exceptions, Jobs, Services, etc.)
 - Prefer one module folder depth (e.g. `Triage/`), avoid deeper trees unless clearly needed
 
-Example pattern (Triage):
+Example pattern:
 
 ```
 app/
-├── DTOs/SharedUserData.php              # shared across services
-├── Enums/GlobalStatus.php               # shared across services
+├── DTOs/SharedUserData.php                 # shared across services
+├── Enums/GlobalStatus.php                  # shared across services
 ├── Exceptions/ExternalServiceException.php
-├── Http/
-│   ├── Controllers/TriageController.php
-│   ├── Requests/Triage/StoreTriageRequest.php
-│   └── Resources/Triage/TriageResource.php
-├── Jobs/NotifyStakeholdersJob.php       # shared across services
-├── Models/Triage/Triage.php
-├── Policies/SystemWidePolicy.php
-└── Services/Triage/
-    ├── DTOs/TriageData.php                     # service-specific
-    ├── Enums/TriageStatus.php                  # service-specific
-    ├── Exceptions/InvalidTriageStateException.php
-    ├── Jobs/ProcessTriageJob.php
-    ├── Policies/TriagePolicy.php
-    ├── TriageService.php
-    ├── AssignmentService.php
-    ├── Contracts/TriageRepositoryContract.php
-    └── Traits/HasTriageStatus.php
+├── Http/                                   # shared across services
+│   ├── Controllers/SharedController.php
+│   ├── Requests/SharedRequest.php
+│   └── Resources/SharedResource.php
+│ 
+├── Jobs/NotifyStakeholdersJob.php          # shared across services
+├── Models/
+│   ├──[FeatureName]/                       # service-specific
+│   │   └── ModelA.php
+│   └── User.php                            # shared across services
+│ 
+├── Policies/        
+│   ├──[FeatureName]/                       # service-specific
+│   │   └── PolicyForModelA.php
+│   └── UserPolicy.php                      # shared across services
+│ 
+├── Providers/FeatureNameProvider.php       # service-specific
+│
+└── Services/[FeatureName]/                 # service-specific files
+    ├── Console/Commands/CommandName.php 
+    ├── Contracts/SomeInterface.php
+    ├── DTOs/SomeData.php                     
+    ├── Enums/FeatureNameStatus.php          
+    ├── Exceptions/InvalidFeatureNameStateException.php
+    ├── Http/
+    │   ├── Controllers/FeatureController.php
+    │   ├── Requests/FeatureRequest.php
+    │   └── Resources/FeatureResource.php
+    ├── Jobs/ProcessFeatureNameJob.php
+    ├── Modules/                            # helper or additional services
+    │   ├── LockService.php
+    │   └── AssignmentService.php
+    ├── Plugins/
+    │   └── FeatureNamePlugin.php
+    ├── Helpers/
+    │   └── FeatureNameHelper.php
+    ├── Utils/
+    │   └── FeatureNameFormatter.php
+    ├── Traits/HasFeatureNameStatus.php
+    └── FeatureNameService.php              # main service class
+```
+
+---
+
+Note: Commands must live in `app/Services/[FeatureName]/Console/Commands/`.
+
+---
+
+```
+config/
+├── feature_name.php
+│
+database/
+├── factories/
+│   └── [FeatureName]/
+│       └── FeatureNameFactory.php
+├── migrations/
+│   └── 2024_01_01_000000_create_feature_name_table.php
+└── seeders/
+    └── FeatureNameSeeder.php
 ```
 
 ---
@@ -94,9 +147,11 @@ Always add appropriate suffixes to class files for clarity:
 | Service | `Service`        | `TriageService.php`               |
 | Trait | `Trait`          | `HasTriageStatus.php`             |
 | Contract/Interface | `Contract`       | `TriageHandlerContract.php`       |
-| Enum | `Enum`           | `TriageStatus.php`                |
+| Enum | None or `Enum`   | `TriageStatus.php`                |
 | DTO | `Data`, `Result` | `TriageData.php`                  |
 | Action | `Action`         | `ProcessTriageAction.php`         |
+
+Note: Custom folders (e.g., `Plugins/`) must use matching suffixes like `Plugin`.
 
 ### Exclusions (No Suffix Required)
 
@@ -134,7 +189,7 @@ class WorkSchedule extends Model
 {
     use HasFactory;
 
-    protected $table = 'ucal_work_schedules';
+    protected $table = 'ucal_work_schedules'; # only if not using default
 
     protected $fillable = [
         'account_id',
@@ -383,3 +438,5 @@ Before committing code:
 - [ ] Required values are never defaulted to values that hide failures
 - [ ] No singletons used in service providers
 - [ ] No request-specific data stored in class properties
+
+Note: Models that belong to a feature must live in `app/Models/[FeatureName]/`. Never place a `Models/` folder inside `app/Services/[FeatureName]/`.
