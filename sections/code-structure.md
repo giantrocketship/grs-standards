@@ -562,18 +562,15 @@ DB::transaction(function () {
 
 Before committing code:
 
-- [ ] Laravel conventional files created using `php artisan make:*` commands
-- [ ] Appropriate suffix added to class names (except models, enums, DTOs)
-- [ ] Files organized into module subdirectories where applicable
-- [ ] Controllers delegate to services for business logic
-- [ ] Controllers return API resources (transformed to json by Laravel automatically)
-- [ ] Services use DTOs for data transfer
-- [ ] Custom casts in `app/Casts/`
-- [ ] Exceptions organized by module in `app/Exceptions/`
-- [ ] Policies in `app/Policies/` with account_id checks
-- [ ] Jobs in `app/Jobs/` with module organization
-- [ ] Contracts defined for key abstractions
-- [ ] Code fails loudly — no silent failures or misleading defaults
-- [ ] Required values are never defaulted to values that hide failures
-- [ ] No singletons used in service providers
-- [ ] No request-specific data stored in class properties
+- [ ] Files created via `php artisan make:*` and placed in the correct folder
+- [ ] Module folders used consistently across `app/Services/<Module>/`, `app/Models/<Module>/`, policies, and observers
+- [ ] Class suffixes follow the table; exceptions only for models, enums, DTOs, actions, and traits
+- [ ] Models have `$fillable`, correct casts, and a factory; no business logic in models
+- [ ] DTOs use Spatie Laravel Data with camelCase fields and `from()` at boundaries
+- [ ] Controllers stay thin, use form requests, delegate to services, and return responses/resources
+- [ ] Services are stateless and DI-driven; no request data stored on properties
+- [ ] Providers avoid singletons unless explicitly safe for Octane
+- [ ] Policies and observers mirror model nesting; policies include `account_id` checks
+- [ ] Eloquent used for queries; `DB::table()` only in migrations/seeders; `DB::transaction()` for transactions
+- [ ] Errors fail loudly with no swallowed exceptions or misleading defaults
+- [ ] Factories use `fake()` with deterministic defaults; seeders are idempotent
