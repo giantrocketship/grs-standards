@@ -13,10 +13,14 @@ Use `php artisan make:*` to create files and follow Laravel conventions and expe
 - Paths and namespaces follow Laravel
 - Base classes/traits are correct
 - Names are consistent across the project
+- Never place two classes in a single file
+- Prefer passing model instances instead of scalar IDs (e.g., $model->id) into methods to avoid extra database queries
 
 ---
 
 ## Directory Structure Overview
+
+> `<Module>` stands for `[FeatureName]` in all examples below
 
 High-level layout is standardized:
 
@@ -36,7 +40,7 @@ app/
 │   └── Resources/
 ├── Jobs/
 ├── Models/
-│   ├── [FeatureName]/
+│   ├── <Module>/
 │   │   ├── FeatureModelA.php
 │   │   └── FeatureModelB.php
 │   ├── Account.php
@@ -56,6 +60,7 @@ While developing a feature, you must follow the model developing logic: create a
 General rules:
 - Keep module names consistent across layers (DTOs, Enums, Exceptions, Jobs, Services, etc.)
 - Prefer one module folder depth (e.g. `Triage/`), avoid deeper trees unless clearly needed
+- Naming convention example (UnifiedCalendar): use `UnifiedCalendar/` for module folders, `UnifiedCalendarService.php` for the main service, table names prefixed with `unified_calendar_`, and models either prefixed with `UnifiedCalendar` or set `protected $table` explicitly
 
 Example pattern:
 
@@ -71,18 +76,18 @@ app/
 │ 
 ├── Jobs/NotifyStakeholdersJob.php          # shared across services
 ├── Models/
-│   ├──[FeatureName]/                       # service-specific
+│   ├── <Module>/                       # service-specific
 │   │   └── ModelA.php
 │   └── User.php                            # shared across services
 │ 
 ├── Policies/        
-│   ├──[FeatureName]/                       # service-specific
+│   ├── <Module>/                       # service-specific
 │   │   └── PolicyForModelA.php
 │   └── UserPolicy.php                      # shared across services
 │ 
 ├── Providers/FeatureNameProvider.php       # service-specific
 │
-└── Services/[FeatureName]/                 # service-specific files
+└── Services/<Module>/                 # service-specific files
     ├── Console/Commands/CommandName.php 
     ├── Contracts/SomeInterface.php
     ├── DTOs/SomeData.php                     
@@ -108,7 +113,7 @@ app/
 
 ---
 
-Note: Commands must live in `app/Services/[FeatureName]/Console/Commands/`.
+Note: Commands must live in `app/Services/<Module>/Console/Commands/`.
 
 ---
 
@@ -118,7 +123,7 @@ config/
 │
 database/
 ├── factories/
-│   └── [FeatureName]/
+│   └── <Module>/
 │       └── FeatureNameFactory.php
 ├── migrations/
 │   └── 2024_01_01_000000_create_feature_name_table.php
@@ -136,20 +141,26 @@ Always add appropriate suffixes to class files for clarity:
 
 | File Type | Suffix           | Example                           |
 |-----------|------------------|-----------------------------------|
+| Action | None             | `ProcessTriage.php`               |
+| Attribute | `Attribute`    | `HasTriageAttribute.php`          |
+| Cast | `Cast`           | `StatusCast.php`                  |
+| Command | `Command`       | `SyncTriageCommand.php`           |
+| Contract/Interface | `Contract`       | `TriageHandlerContract.php`       |
 | Controller | `Controller`     | `TriageController.php`            |
+| DTO | `Data`, `Result` | `TriageData.php`                  |
+| Enum | None or `Enum`   | `TriageStatus.php`                |
+| Exception | `Exception`      | `InvalidTriageStateException.php` |
+| Factory | `Factory`       | `TriageFactory.php`               |
+| Job | `Job`            | `ProcessTriageJob.php`            |
 | Model | None             | `Triage.php`                      |
+| Observer | `Observer`      | `TriageObserver.php`              |
+| Policy | `Policy`         | `TriagePolicy.php`                |
+| Provider | `ServiceProvider` | `TriageServiceProvider.php`    |
 | Request | `Request`        | `StoreTriageRequest.php`          |
 | Resource | `Resource`       | `TriageResource.php`              |
-| Job | `Job`            | `ProcessTriageJob.php`            |
-| Cast | `Cast`           | `StatusCast.php`                  |
-| Exception | `Exception`      | `InvalidTriageStateException.php` |
-| Policy | `Policy`         | `TriagePolicy.php`                |
+| Seeder | `Seeder`        | `TriageSeeder.php`                |
 | Service | `Service`        | `TriageService.php`               |
-| Trait | `Trait`          | `HasTriageStatus.php`             |
-| Contract/Interface | `Contract`       | `TriageHandlerContract.php`       |
-| Enum | None or `Enum`   | `TriageStatus.php`                |
-| DTO | `Data`, `Result` | `TriageData.php`                  |
-| Action | `Action`         | `ProcessTriageAction.php`         |
+| Trait | None             | `HasTriageStatus.php`             |
 
 Note: Custom folders (e.g., `Plugins/`) must use matching suffixes like `Plugin`.
 
@@ -159,17 +170,19 @@ Note: Custom folders (e.g., `Plugins/`) must use matching suffixes like `Plugin`
 - **Enums** — `TriageStatus.php` is fine
 - **DTOs** — `TriageData.php` or `TriageResult.php`
 - **Actions** — Verb-style names like `ProcessTriage.php`
+- **Traits** — `HasTriageStatus.php`, not `HasTriageStatusTrait.php`
 
 ---
 
 ## Detailed Directory Guidelines
 
-### Models (`app/Models/`)
+### Models (`app/Models/<Module>`)
 
 **Directory Structure:**
-- All models live in `app/Models/`
-- Feature-specific models live in dedicated subdirectories: `app/Models/FeatureName/`
-- Example: `app/Models/Triage/Triage.php`, `app/Models/UnifiedCalendar/WorkSchedule.php`
+
+Models that belong to a feature must live in `app/Models/<Module>/`. Never place a `Models/` folder inside `app/Services/<Module>/`.
+
+> Example: `app/Models/Triage/Triage.php`, `app/Models/UnifiedCalendar/WorkSchedule.php`
 
 **Requirements:**
 - Every model **must have a `$fillable` array** listing all mass-assignable columns (except `id`)
@@ -180,7 +193,8 @@ Note: Custom folders (e.g., `Plugins/`) must use matching suffixes like `Plugin`
   - Date/datetime columns: `'created_at' => 'datetime'`, `'scheduled_on' => 'date'`
   - JSON columns: `'config' => 'array'`
 - Focus models on relationships, casts, and scopes
-- Move business logic to services
+
+> Adding functions to models that perform logic is forbidden; put that code in a dedicated service file
 
 **Example:**
 ```php
@@ -189,7 +203,7 @@ class WorkSchedule extends Model
 {
     use HasFactory;
 
-    protected $table = 'ucal_work_schedules'; # only if not using default
+    protected $table = 'ucal_work_schedules'; # only if model name is different from table name
 
     protected $fillable = [
         'account_id',
@@ -214,7 +228,66 @@ class WorkSchedule extends Model
 }
 ```
 
-### Enums (`app/Services/<Module>/Enums/` and `app/Enums/`)
+### Console Commands (`app/Services/<Module>/Console/Commands/`)
+
+- Commands live under `app/Services/<Module>/Console/Commands/`
+- Use the `Command` suffix
+- Command signatures use lowercase, kebab-case segments separated by `:` and follow the pattern `<domain>:<feature>:<action>` (use the shortest form that fits, e.g., two segments when a feature domain is sufficient)
+- Options must be kebab-case, explicit, and include descriptions and defaults where applicable
+- Example signature (multi-option):
+```php
+protected $signature = 'helpdesk:discovery:changes
+    {--integration-id= : The integration ID}
+    {--tag= : Find integration by tag instead of ID}
+    {--entity= : Filter by entity type (ticket, company)}
+    {--type= : Filter by change type (field_added, field_deprecated, etc.)}
+    {--since=7 days ago : Show changes since date (default: 7 days ago)}
+    {--limit=50 : Maximum changes to show}';
+```
+- Example signature (single option):
+```php
+protected $signature = 'ticket-assign:explain {--decision= : Decision ID}';
+```
+
+### Contracts/Interfaces (`app/Services/<Module>/Contracts/`)
+
+- Use `Contract` suffix: `TriageRepositoryContract.php`
+- Service-specific contracts live under `app/Services/<Module>/Contracts/`
+- Bind interfaces to implementations in service providers
+- Avoid using singletons. Use them only if confident no issues or memory leaks caused to Laravel Octane.
+
+
+### DTOs (`app/Services/<Module>/DTOs/`)
+
+DTOs are always Spatie Laravel Data objects.
+
+- **Always use Spatie Laravel Data**; do not hand-roll DTOs
+- Refer to the Spatie documentation for conventions and usage rules
+- Service-specific DTOs live under `app/Services/<Module>/DTOs/`
+- Only DTOs intentionally shared across multiple services can be stored in `app/DTOs/`
+- Suffix is optional: `TriageData.php`, `CreateTriageData.php`
+- Use attributes for validation
+- DTO fields must use camelCase
+- Use `from()` to create DTOs from requests/models
+- Use DTOs at API and service boundaries; no business logic inside
+
+**Example:**
+```php
+class SongData extends Data
+{
+    public function __construct(
+        public string $title,
+        public string $artist,
+        #[MapInputName('release_date')]
+        public string $releaseDate,
+        public DateTime $date,
+        public Format $format,
+    ) {
+    }
+}
+```
+
+### Enums (`app/Services/<Module>/Enums/`)
 
 ```php
 // app/Services/Triage/Enums/TriageStatus.php
@@ -230,41 +303,12 @@ enum TriageStatus: string
 
 **Guidelines:**
 - Service-specific enums live under `app/Services/<Module>/Enums/`
-- Only enums intentionally shared across multiple services belong in `app/Enums/`
-- Organize shared enums by module/domain under `app/Enums/...` if needed
+- Only enums intentionally shared across multiple services can be stored in `app/Enums/`
+- Enum names must be uppercase
 - Use descriptive case names
-- Keep enums simple; move complex logic to services
+- Enums can have helper methods, but move complex logic to services
 
-### Casts (`app/Services/<Module>/Casts/` and `app/Casts/`)
-
-- Use the `Cast` suffix
-- Service-specific casts live under `app/Services/<Module>/Casts/`
-- Only casts intentionally shared across multiple services belong in `app/Casts/`
-- Organize shared casts by module/domain under `app/Casts/...` if needed
-- Register via model `$casts`
-
-### DTOs (`app/Services/<Module>/DTOs/` and `app/DTOs/`)
-
-DTOs are always Spatie Laravel Data objects.
-
-- **Always use Spatie Laravel Data**; do not hand-roll DTOs
-- Service-specific DTOs live under `app/Services/<Module>/DTOs/`
-- Only DTOs intentionally shared across multiple services belong in `app/DTOs/`
-- Organize shared DTOs by module/domain under `app/DTOs/...` if needed
-- Suffix is optional: `TriageData.php`, `CreateTriageData.php`
-- Use attributes for validation
-- Use `from()` to create DTOs from requests/models
-- Use DTOs at API and service boundaries; no business logic inside
-
-### Jobs (`app/Services/<Module>/Jobs/` and `app/Jobs/`)
-
-- Use the `Job` suffix
-- Service-specific jobs live under `app/Services/<Module>/Jobs/`
-- Only jobs intentionally shared across multiple services belong in `app/Jobs/`
-- Organize shared jobs by module/domain under `app/Jobs/...` if needed
-- Keep jobs focused and idempotent
-
-### Exceptions (`app/Services/<Module>/Exceptions/` and `app/Exceptions/`)
+### Exceptions (`app/Services/<Module>/Exceptions/`)
 
 - Use the `Exception` suffix
 - Service-specific exceptions live under `app/Services/<Module>/Exceptions/`
@@ -272,59 +316,154 @@ DTOs are always Spatie Laravel Data objects.
 - Organize shared exceptions by module/domain under `app/Exceptions/...` if needed
 - Provide meaningful messages and context
 
-### Policies (`app/Services/<Module>/Policies/` and `app/Policies/`)
+### Jobs (`app/Services/<Module>/Jobs/`)
 
-- Use the `Policy` suffix
-- Service-specific policies live under `app/Services/<Module>/Policies/`
-- Only policies intentionally shared across multiple services belong in `app/Policies/`
-- Organize shared policies by module/domain under `app/Policies/...` if needed
-- Always check `account_id` for tenant isolation
-- Register in `AuthServiceProvider`
+- Use the `Job` suffix
+- Service-specific jobs live under `app/Services/<Module>/Jobs/`
+- Keep jobs focused and idempotent
 
-### Services (`app/Services/`)
+### Services (`app/Services/<Module>/`)
 
 - Use the `Service` suffix
-- Organize by module
+- Organize by module name
+- Core service must live in `app/Services/<Module>/FeatureNameService.php`
+- Helper/auxiliary services live in `app/Services/<Module>/Modules/`
 - Inject dependencies via constructor
 - Single responsibility per service
 - Use DTOs for data transfer
 - Dispatch jobs for async work
+- Never store state/data on service classes (Laravel Octane reuses instances)
 
-### Contracts/Interfaces (`app/Services/<Module>/Contracts/` and `app/Contracts/`)
+### Traits (`app/Services/<Module>/Traits/`)
 
-- Use `Interface` suffix: `TriageRepositoryInterface.php`
-- Service-specific contracts live under `app/Services/<Module>/Contracts/`
-- Only contracts intentionally shared across multiple services go in `app/Contracts/`
-- Bind interfaces to implementations in service providers
-
-### Traits (`app/Services/<Module>/Traits/` and `app/Traits/`)
-
-- Use the `Trait` suffix
+- Trait names follow Laravel conventions (e.g., `HasSlug`, `Sluggable`);
 - Service-specific traits live under `app/Services/<Module>/Traits/`
 - Only traits intentionally shared across multiple services go in `app/Traits/`
+- Model traits live in `app/Models/Traits/<Module>/MyTrait.php`
 - Single, focused concern per trait
 
-### Form Requests (`app/Http/Requests/`)
+---
+
+### Database Factories (`database/factories/`)
+
+- Use the `Factory` suffix
+- Feature-specific factories live under `database/factories/<Module>/`
+- Use `fake()` instead of `$this->faker`
+- Prefer factory states for variants (e.g., integration-specific configurations)
+- Keep factories deterministic and focused on defaults
+```php
+public function definition(): array
+{
+    return [
+        'uuid' => Uuid::uuid4()->toString(),
+        'name' => fake()->company(),
+        'psa_type' => fake()->randomElement(PsaType::cases()),
+    ];
+}
+
+public function connectWise(): static
+{
+    return $this->state(fn () => [
+        'psa_type' => PsaType::ConnectWise,
+        'psa_creds' => [
+            'company_id' => config('services.connectwise.test.company_id'),
+        ],
+    ]);
+}
+```
+
+### Database Migrations (`database/migrations/`)
+
+- Prefer a single migration file per feature
+- Table names must be prefixed with the feature name in `snake_case`
+- Use Laravel schema conventions (`->nullable()`, `->index()`, `->default()`)
+- Use `->timestamp()` instead of `->datetime()`
+- If the feature has logical separation or too many tables, split into multiple migrations
+- While the feature is unmerged, edit the initial migration file
+- After the feature is merged to `main`, use new migrations file for tables changes
+
+### Database Seeders (`database/seeders/`)
+
+- Use the `Seeder` suffix
+- Feature-specific seeders live under `database/seeders/<Module>Seeder.php`
+- Prefer a single seeder file per feature
+- If seeding is large or logically distinct, split into multiple files prefixed with `FeatureName`
+- Seeders should be idempotent
+
+---
+
+Less common
+
+### Actions (`app/Services/<Module>/Actions/` and `app/Actions/`)
+
+- Name actions as verbs without the `Action` suffix (Laravel-style single-action classes), e.g. `ApprovePayment.php`, `SyncCalendar.php`
+- Service-specific actions live under `app/Services/<Module>/Actions/`; shared actions can be in `app/Actions/`
+- Use actions to encapsulate a single, reusable workflow invoked by controllers, jobs, or commands
+
+### Casts (`app/Services/<Module>/Casts/`)
+
+- Use the `Cast` suffix
+- Service-specific casts live under `app/Services/<Module>/Casts/`
+- Only casts intentionally shared across multiple services can be stored in `app/Casts/`
+- Organize shared casts by module/domain under `app/Casts/...` if needed
+- Register via model `$casts`
+
+### HTTP (`app/Services/<Module>/Http/`)
+
+- Organize module-specific controllers, requests, and resources under `app/Services/<Module>/Http/`
+- Shared HTTP files belong in `app/Http/`
+- Keep module HTTP layers aligned with service boundaries
+
+### Form Requests (`app/Services/<Module>/Http/Requests/`)
 
 - Use the `Request` suffix
 - Organize by module
-- Put authorization in `authorize()`
+- Use policies and gates, never put authorization in `authorize()`
 - Use enums with `Rule::enum()`
 
-### Resources (`app/Http/Resources/`)
+### Resources (`app/Services/<Module>/Http/Resources/`)
 
 - Use the `Resource` suffix
 - Organize by module
+- Use snake_case for JSON keys
 - Use ISO 8601 for dates
 - Transform to a consistent API shape
 
-### Controllers (`app/Http/Controllers/`)
+### Controllers (`app/Services/<Module>/Http/Controllers/`)
 
 - Use the `Controller` suffix
 - Organize by module
 - Keep controllers thin; delegate to services
 - Use type hints and dependency injection
 - Use form requests for validation
+- Always return a `Response` object (or `response()->json()` if needed)
+
+### Observers (`app/Observers/<Module>/`)
+
+- Observers mirror model nesting: if a model lives in `app/Models/<Module>/`, the observer must live in `app/Observers/<Module>/`
+- Use the `Observer` suffix
+- Keep observers focused and side-effect-aware
+- Use Attribute on the model file to register the observer
+```php
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+
+#[ObservedBy([WorkScheduleObserver::class])]
+class WorkSchedule extends Model
+{
+}
+```
+
+### Policies (`app/Policies/<Module>/`)
+
+- Policies mirror model nesting: if a model lives in `app/Models/<Module>/`, the policy must live in `app/Policies/<Module>/`
+- Use the `Policy` suffix
+- Policies should be auto-discovered; avoid manual registration unless needed
+
+### Providers (`app/Providers/`)
+
+- Module providers are responsible for feature bindings
+- Prefer explicit bindings over magic
+- Do not store request-specific data in providers
 
 ---
 
@@ -438,5 +577,3 @@ Before committing code:
 - [ ] Required values are never defaulted to values that hide failures
 - [ ] No singletons used in service providers
 - [ ] No request-specific data stored in class properties
-
-Note: Models that belong to a feature must live in `app/Models/[FeatureName]/`. Never place a `Models/` folder inside `app/Services/[FeatureName]/`.
