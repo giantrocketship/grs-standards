@@ -6,6 +6,21 @@
 
 Technical standards for GRS.
 
+---
+
+## ⚠️ Auto-Generated Files — Do Not Edit
+
+This repository uses GitHub Actions to automatically generate combined documentation files. **The following files are auto-generated and will be overwritten on every push:**
+
+| File                       | Purpose                     |
+|----------------------------|-----------------------------|
+| `CODING-STANDARDS.md`      | Combined standards document |
+| `copilot-instructions.md`  | AI assistant instructions   |
+
+**Do not edit these files directly** — your changes will be lost. Instead, edit the source files in the `sections/` directory.
+
+---
+
 ## Table of Contents
 
 - [Overview](#overview)
