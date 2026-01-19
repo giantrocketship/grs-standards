@@ -59,6 +59,7 @@ This allows external tests to be skipped or run separately.
 
 - Reusable datasets live in `tests/Datasets/*Dataset.php`
 - Name datasets descriptively (e.g. `valid articles`, `invalid articles`)
+- Refer to Pest documentation for rules on datasets, helpers, and other test utilities
 
 ```php
 // tests/Datasets/ArticleDataset.php
@@ -315,9 +316,13 @@ tests/
 ├── Integration/
 │   ├── Workflows/
 │   └── ...
+├── Helpers/
+│   ├── FeatureOneHelpers.php
+│   ├── FeatureTwoHelpers.php
+│   └── ...
 └── Datasets/
-    ├── ArticleDataset.php
-    ├── UserDataset.php
+    ├── FeatureOneDataset.php
+    ├── FeatureTwoDataset.php
     └── ...
 ```
 
@@ -339,6 +344,24 @@ test('creates article in database', function () {
 ```
 
 Database is automatically refreshed between tests.
+
+---
+
+## Hardcoded Data & IDs
+
+### Never Rely on Seeded IDs in Tests
+
+Do not hardcode IDs or rely on seeders to create specific IDs. Always create what the test needs.
+
+```php
+// ❌ WRONG: hardcoded ID from a seeder
+$account = Account::find(1);
+
+// ✅ CORRECT: create the data in the test
+$account = Account::factory()->create();
+```
+
+If you need a specific record, create it in the test (or use a factory state) and reference it directly.
 
 ---
 

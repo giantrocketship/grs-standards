@@ -8,7 +8,7 @@ GRS date/time rules for storage and multi-timezone behavior.
 
 ## Core Principles
 
-1. **Always store UTC** in the database
+1. **Always store UTC only** in the database (no local time or offset storage)
 2. **Use Carbon/CarbonImmutable**, not native `DateTime`
 3. **Convert to user timezone only at the edges** (input/output)
 4. **Use CarbonImmutable** for event-like, immutable data
@@ -30,9 +30,9 @@ Use these patterns across all tables:
 
 ```php
 // Datetime columns (stored as UTC)
-$table->dateTime('created_at');
-$table->dateTime('synced_at')->nullable();
-$table->dateTime('expires_at')->nullable();
+$table->timestamp('created_at');
+$table->timestamp('synced_at')->nullable();
+$table->timestamp('expires_at')->nullable();
 
 // Date-only columns
 $table->date('birth_date_on');
@@ -193,8 +193,8 @@ $recentEvents = Calendar::where('synced_at', '>=', Carbon::now()->subHour())
     ->get();
 
 // Events created today (in UTC)
-$todayStart = Carbon::now()->startOfDay();
-$todayEnd = Carbon::now()->endOfDay();
+$todayStart = Carbon::now()->startOfDay(); // or now()->startOfDay()
+$todayEnd = Carbon::now()->endOfDay(); // or now()->endOfDay()
 
 $todayEvents = Calendar::whereBetween('created_at', [$todayStart, $todayEnd])
     ->get();
@@ -260,13 +260,8 @@ $hours = $model->expires_at->diffInHours(Carbon::now());
 $table->timestamps();
 
 // Explicit datetime column
-$table->dateTime('expires_at')->nullable();
+$table->timestamp('expires_at')->nullable();
 
-// Datetime with default (current UTC)
-$table->dateTime('scheduled_at')->useCurrent();
-
-// Datetime with timezone-aware default (DO NOT USE with Laravel)
-// Laravel handles UTC conversion automatically
 ```
 
 ### Date & Time Columns
@@ -295,10 +290,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Calendar extends Model
 {
     use SoftDeletes;
-
-    protected $casts = [
-        'deleted_at' => 'datetime',
-    ];
 }
 ```
 
@@ -324,8 +315,7 @@ $events = Calendar::onlyTrashed()->get();
 ```php
 use Illuminate\Support\Facades\Date;
 
-public function test_event_expires()
-{
+test('event_expires', funciton () {
     // Freeze time at a specific point
     Date::setTestNow('2025-12-23 12:00:00');
 
@@ -340,7 +330,7 @@ public function test_event_expires()
     Date::setTestNow('2025-12-31 12:00:00');
 
     $this->assertFalse($event->isActive());
-}
+});
 ```
 
 ---
