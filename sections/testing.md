@@ -11,24 +11,77 @@ Testing standards for GRS using **Pest**.
 
 ### Unit Tests
 
-- No DB
-- No HTTP
+- **No database access** — never use `RefreshDatabase` or `DatabaseTransactions`
+- No HTTP requests
 - Single method/function focus
+- Use `Model::factory()->make()` to create model instances **without persisting**
+- Use mocks/stubs for all dependencies
+- Should be fast (no I/O operations)
 - Location: `tests/Unit/`
+
+```php
+// ✅ Unit test - no database
+test('calculates order total correctly', function () {
+    $items = collect([
+        OrderItem::factory()->make(['price' => 100, 'quantity' => 2]),
+        OrderItem::factory()->make(['price' => 50, 'quantity' => 1]),
+    ]);
+
+    $calculator = new OrderCalculator();
+
+    expect($calculator->total($items))->toBe(250);
+});
+```
 
 ### Feature Tests
 
-- HTTP-level features
-- May hit DB
-- Smaller scope than integration
+- **Access database** using `RefreshDatabase` or `DatabaseTransactions`
+- Test full HTTP request/response cycle (controllers, middleware, validation)
+- Use `Model::factory()->create()` to persist data
 - Location: `tests/Feature/`
+
+```php
+// ✅ Feature test - with database
+test('user can view their profile', function () {
+    $user = User::factory()->create();
+
+    actingAs($user)
+        ->get('/profile')
+        ->assertOk()
+        ->assertSee($user->name);
+});
+```
 
 ### Integration Tests
 
-- End-to-end workflows
-- Cross-module behavior
-- May involve external services
+- **Access database** using `RefreshDatabase` or `DatabaseTransactions`
+- Test multiple classes working together (without HTTP layer)
+- Test service classes, repositories, jobs, events
+- Verify database state changes
 - Location: `tests/Integration/`
+
+```php
+// ✅ Integration test - services with database
+test('order service creates order with items', function () {
+    $user = User::factory()->create();
+    $products = Product::factory()->count(3)->create();
+
+    $service = new OrderService();
+    $order = $service->createOrder($user, $products);
+
+    expect($order)->toBeInstanceOf(Order::class);
+    expect($order->items)->toHaveCount(3);
+    $this->assertDatabaseHas('orders', ['user_id' => $user->id]);
+});
+```
+
+### Summary Table
+
+| Test Type   | Database | Factory Method | What it tests                        |
+|-------------|----------|----------------|--------------------------------------|
+| Unit        | No       | `make()`       | Single class/method in isolation     |
+| Integration | Yes      | `create()`     | Multiple classes working together    |
+| Feature     | Yes      | `create()`     | Full HTTP request/response cycle     |
 
 ---
 
@@ -347,21 +400,60 @@ Database is automatically refreshed between tests.
 
 ---
 
-## Hardcoded Data & IDs
+## Seed Data & Test Data
 
-### Never Rely on Seeded IDs in Tests
+### Tests Must NEVER Rely on Seed Data
 
-Do not hardcode IDs or rely on seeders to create specific IDs. Always create what the test needs.
+**Seed data is strictly for demos and walkthroughs — never for testing.**
+
+Tests must be self-contained and create all required data using factories. Relying on seeders makes tests:
+
+- Brittle (break when seeders change)
+- Non-deterministic (different results in different environments)
+- Hard to understand (hidden dependencies on external data)
 
 ```php
-// ❌ WRONG: hardcoded ID from a seeder
+// ❌ WRONG: relying on seeded data
 $account = Account::find(1);
+$user = User::where('email', 'admin@example.com')->first();
 
-// ✅ CORRECT: create the data in the test
+// ❌ WRONG: calling seeders in tests
+$this->seed(AccountSeeder::class);
+
+// ✅ CORRECT: create all data in the test
 $account = Account::factory()->create();
+$user = User::factory()->admin()->create();
 ```
 
-If you need a specific record, create it in the test (or use a factory state) and reference it directly.
+### Hardcoded IDs
+
+Never hardcode IDs. Always reference created models directly.
+
+```php
+// ❌ WRONG: hardcoded ID
+$response = getJson('/users/1');
+
+// ✅ CORRECT: use the created model's ID
+$user = User::factory()->create();
+$response = getJson("/users/{$user->id}");
+```
+
+### Factory States for Specific Scenarios
+
+Use factory states to create models with specific attributes instead of relying on seeded data:
+
+```php
+// In UserFactory.php
+public function admin(): static
+{
+    return $this->state(fn (array $attributes) => [
+        'role' => 'admin',
+    ]);
+}
+
+// In test
+$admin = User::factory()->admin()->create();
+```
 
 ---
 
