@@ -227,7 +227,7 @@ app/
     │   ├── Requests/FeatureRequest.php
     │   └── Resources/FeatureResource.php
     ├── Jobs/ProcessFeatureNameJob.php
-    ├── Modules/                            # helper or additional services
+    ├── Support/                       # helper or additional services
     │   ├── LockService.php
     │   └── AssignmentService.php
     ├── Plugins/
@@ -316,6 +316,9 @@ Models that belong to a feature must live in `app/Models/<Module>/`. Never place
 **Requirements:**
 - Every model **must have a `$fillable` array** listing all mass-assignable columns (except `id`)
 - Every model **must have a corresponding factory** in `database/factories/FeatureName/ModelNameFactory.php`
+- Every model **must define a `$rules` array** for validation
+- Every model **must use the `ValidatesOnSave` trait**
+- Every model **must include a phpdoc block with `@property` tags** so phpstan can understand the model fields and relations
 - Every model **must cast columns** appropriately:
   - Boolean columns: `'is_active' => 'boolean'`
   - Enum columns: `'status' => StatusEnum::class`
@@ -328,11 +331,34 @@ Models that belong to a feature must live in `app/Models/<Module>/`. Never place
 **Example:**
 ```php
 // app/Models/UnifiedCalendar/WorkSchedule.php
+
+use App\Models\Traits\ValidatesOnSave;
+use App\Models\User;
+use Database\Factories\UnifiedCalendar\WorkScheduleFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+/**
+ * @property int $id
+ * @property string $uuid
+ * @property int|null $account_id
+ * @property int $user_id
+ * @property int|null $schedule_layer_id
+ * @property int $weekday
+ * @property string $starts_time
+ * @property string $ends_time
+ * @property string|null $title
+ * @property string|null $notes
+ * @property-read ScheduleLayer|null $layer
+ * @property-read User $user
+ */
 class WorkSchedule extends Model
 {
-    use HasFactory;
+    /** @use HasFactory<WorkScheduleFactory> */
+    use HasFactory, ValidatesOnSave;
 
-    protected $table = 'ucal_work_schedules'; # only if model name is different from table name
+    protected $table = 'universal_calendar_work_schedules';
 
     protected $fillable = [
         'account_id',
@@ -353,7 +379,23 @@ class WorkSchedule extends Model
         'ends_time' => 'string',
     ];
 
-    // relationships, scopes, etc.
+    protected $rules = [
+        'account_id' => 'required|integer|exists:accounts,id',
+        'user_id' => 'nullable|integer|exists:users,id',
+        'schedule_layer_id' => 'nullable|integer|exists:universal_calendar_schedule_layers,id',
+        'weekday' => 'required|integer|between:1,7',
+        'starts_time' => 'required|string|date_format:H:i:s',
+        'ends_time' => 'required|string|date_format:H:i:s',
+        'title' => 'nullable|string|max:255',
+        'notes' => 'nullable|string|max:255',
+    ];
+
+    public function layer(): BelongsTo
+    {
+        return $this->belongsTo(ScheduleLayer::class, 'schedule_layer_id');
+    }
+
+    // other relationships, scopes, etc.
 }
 ```
 
@@ -363,10 +405,18 @@ class WorkSchedule extends Model
 - Use the `Command` suffix
 - Command signatures use lowercase, kebab-case segments separated by `:` and follow the pattern `<domain>:<feature>:<action>` (use the shortest form that fits, e.g., two segments when a feature domain is sufficient)
 - Options must be kebab-case, explicit, and include descriptions and defaults where applicable
+- Required parameters are positional arguments
+- Optional parameters are named options (`--from=`, `--to=`, etc.)
+- Commands that operate on users must require both `{account}` and `{user}` to avoid multi-account ambiguity
+- Standardize parameter names to semantic, domain-level names (avoid database column naming)
+  - Use `account` (not `account-id` / `account_id`)
+  - Use `user` (not `user-id` / `user_id`)
+  - Use `integration` (not `integration-id` / `integration_id`)
 - Example signature (multi-option):
 ```php
 protected $signature = 'helpdesk:discovery:changes
-    {--integration-id= : The integration ID}
+    {account : The account ID}
+    {integration : The integration ID}
     {--tag= : Find integration by tag instead of ID}
     {--entity= : Filter by entity type (ticket, company)}
     {--type= : Filter by change type (field_added, field_deprecated, etc.)}
@@ -375,7 +425,7 @@ protected $signature = 'helpdesk:discovery:changes
 ```
 - Example signature (single option):
 ```php
-protected $signature = 'ticket-assign:explain {--decision= : Decision ID}';
+protected $signature = 'ticket-assign:explain {decision : Decision ID}';
 ```
 
 ### Contracts/Interfaces (`app/Services/<Module>/Contracts/`)
@@ -456,7 +506,7 @@ enum TriageStatus: string
 - Use the `Service` suffix
 - Organize by module name
 - Core service must live in `app/Services/<Module>/FeatureNameService.php`
-- Helper/auxiliary services live in `app/Services/<Module>/Modules/`
+- Helper/auxiliary services live in `app/Services/<Module>/Support/`
 - Inject dependencies via constructor
 - Single responsibility per service
 - Use DTOs for data transfer
@@ -1409,13 +1459,23 @@ Testing standards for GRS using **Pest**.
 
 ---
 
+## Required Testing Rules
+
+- All tests are Pest tests; PHPUnit tests are forbidden
+- Tests must not extend PHPUnit `TestCase`
+- Tests must not use `RefreshDatabase` (handled by Pest)
+- Tests must not use seeders
+- All test data must be created via factories (no `Model::create()`, `$model->save()`, or `DB::` facade usage)
+
+---
 
 ## Test Types
 
 ### Unit Tests
 
 - **No database access** — never use `RefreshDatabase` or `DatabaseTransactions`
-- No HTTP requests
+- **No HTTP requests**
+- **No third-party service calls**
 - Single method/function focus
 - Use `Model::factory()->make()` to create model instances **without persisting**
 - Use mocks/stubs for all dependencies
@@ -1438,7 +1498,7 @@ test('calculates order total correctly', function () {
 
 ### Feature Tests
 
-- **Access database** using `RefreshDatabase` or `DatabaseTransactions`
+- **Access database** (handled by Pest)
 - Test full HTTP request/response cycle (controllers, middleware, validation)
 - Use `Model::factory()->create()` to persist data
 - Location: `tests/Feature/`
@@ -1457,7 +1517,7 @@ test('user can view their profile', function () {
 
 ### Integration Tests
 
-- **Access database** using `RefreshDatabase` or `DatabaseTransactions`
+- **Access database** (handled by Pest)
 - Test multiple classes working together (without HTTP layer)
 - Test service classes, repositories, jobs, events
 - Verify database state changes
@@ -1499,7 +1559,7 @@ test('order service creates order with items', function () {
 
 ## External HTTP Calls
 
-When a test makes real HTTP calls to external services (not the app), label it with the `external` group:
+External HTTP calls are **forbidden** in unit tests. Feature and integration tests may call external services when required; label those tests with the `external` group:
 
 ```php
 test('fetches data from external API', function () {
@@ -1516,6 +1576,7 @@ This allows external tests to be skipped or run separately.
 - Reusable datasets live in `tests/Datasets/*Dataset.php`
 - Name datasets descriptively (e.g. `valid articles`, `invalid articles`)
 - Refer to Pest documentation for rules on datasets, helpers, and other test utilities
+- Use datasets or helper functions in `tests/Helpers` that rely on factories (seeders are forbidden)
 
 ```php
 // tests/Datasets/ArticleDataset.php
@@ -1766,11 +1827,11 @@ tests/
 │   ├── Models/
 │   └── Utils/
 ├── Feature/
-│   ├── Articles/
-│   ├── Users/
+│   ├── Models/
+│   ├── Services/
 │   └── ...
 ├── Integration/
-│   ├── Workflows/
+│   ├── Services/
 │   └── ...
 ├── Helpers/
 │   ├── FeatureOneHelpers.php

@@ -6,13 +6,23 @@ Testing standards for GRS using **Pest**.
 
 ---
 
+## Required Testing Rules
+
+- All tests are Pest tests; PHPUnit tests are forbidden
+- Tests must not extend PHPUnit `TestCase`
+- Tests must not use `RefreshDatabase` (handled by Pest)
+- Tests must not use seeders
+- All test data must be created via factories (no `Model::create()`, `$model->save()`, or `DB::` facade usage)
+
+---
 
 ## Test Types
 
 ### Unit Tests
 
 - **No database access** — never use `RefreshDatabase` or `DatabaseTransactions`
-- No HTTP requests
+- **No HTTP requests**
+- **No third-party service calls**
 - Single method/function focus
 - Use `Model::factory()->make()` to create model instances **without persisting**
 - Use mocks/stubs for all dependencies
@@ -35,7 +45,7 @@ test('calculates order total correctly', function () {
 
 ### Feature Tests
 
-- **Access database** using `RefreshDatabase` or `DatabaseTransactions`
+- **Access database** (handled by Pest)
 - Test full HTTP request/response cycle (controllers, middleware, validation)
 - Use `Model::factory()->create()` to persist data
 - Location: `tests/Feature/`
@@ -54,7 +64,7 @@ test('user can view their profile', function () {
 
 ### Integration Tests
 
-- **Access database** using `RefreshDatabase` or `DatabaseTransactions`
+- **Access database** (handled by Pest)
 - Test multiple classes working together (without HTTP layer)
 - Test service classes, repositories, jobs, events
 - Verify database state changes
@@ -96,7 +106,7 @@ test('order service creates order with items', function () {
 
 ## External HTTP Calls
 
-When a test makes real HTTP calls to external services (not the app), label it with the `external` group:
+External HTTP calls are **forbidden** in unit tests. Feature and integration tests may call external services when required; label those tests with the `external` group:
 
 ```php
 test('fetches data from external API', function () {
@@ -113,6 +123,7 @@ This allows external tests to be skipped or run separately.
 - Reusable datasets live in `tests/Datasets/*Dataset.php`
 - Name datasets descriptively (e.g. `valid articles`, `invalid articles`)
 - Refer to Pest documentation for rules on datasets, helpers, and other test utilities
+- Use datasets or helper functions in `tests/Helpers` that rely on factories (seeders are forbidden)
 
 ```php
 // tests/Datasets/ArticleDataset.php
@@ -363,11 +374,11 @@ tests/
 │   ├── Models/
 │   └── Utils/
 ├── Feature/
-│   ├── Articles/
-│   ├── Users/
+│   ├── Models/
+│   ├── Services/
 │   └── ...
 ├── Integration/
-│   ├── Workflows/
+│   ├── Services/
 │   └── ...
 ├── Helpers/
 │   ├── FeatureOneHelpers.php
