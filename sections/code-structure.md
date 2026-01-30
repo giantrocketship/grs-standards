@@ -276,10 +276,18 @@ class WorkSchedule extends Model
 - Use the `Command` suffix
 - Command signatures use lowercase, kebab-case segments separated by `:` and follow the pattern `<domain>:<feature>:<action>` (use the shortest form that fits, e.g., two segments when a feature domain is sufficient)
 - Options must be kebab-case, explicit, and include descriptions and defaults where applicable
+- Required parameters are positional arguments
+- Optional parameters are named options (`--from=`, `--to=`, etc.)
+- Commands that operate on users must require both `{account}` and `{user}` to avoid multi-account ambiguity
+- Standardize parameter names to semantic, domain-level names (avoid database column naming)
+  - Use `account` (not `account-id` / `account_id`)
+  - Use `user` (not `user-id` / `user_id`)
+  - Use `integration` (not `integration-id` / `integration_id`)
 - Example signature (multi-option):
 ```php
 protected $signature = 'helpdesk:discovery:changes
-    {--integration-id= : The integration ID}
+    {account : The account ID}
+    {integration : The integration ID}
     {--tag= : Find integration by tag instead of ID}
     {--entity= : Filter by entity type (ticket, company)}
     {--type= : Filter by change type (field_added, field_deprecated, etc.)}
@@ -288,7 +296,7 @@ protected $signature = 'helpdesk:discovery:changes
 ```
 - Example signature (single option):
 ```php
-protected $signature = 'ticket-assign:explain {--decision= : Decision ID}';
+protected $signature = 'ticket-assign:explain {decision : Decision ID}';
 ```
 
 ### Contracts/Interfaces (`app/Services/<Module>/Contracts/`)
@@ -369,7 +377,7 @@ enum TriageStatus: string
 - Use the `Service` suffix
 - Organize by module name
 - Core service must live in `app/Services/<Module>/FeatureNameService.php`
-- Helper/auxiliary services live in `app/Services/<Module>/Modules/`
+- Helper/auxiliary services live in `app/Services/<Module>/Support/`
 - Inject dependencies via constructor
 - Single responsibility per service
 - Use DTOs for data transfer
