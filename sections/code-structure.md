@@ -98,7 +98,7 @@ app/
     │   ├── Requests/FeatureRequest.php
     │   └── Resources/FeatureResource.php
     ├── Jobs/ProcessFeatureNameJob.php
-    ├── Modules/                            # helper or additional services
+    ├── Support/                       # helper or additional services
     │   ├── LockService.php
     │   └── AssignmentService.php
     ├── Plugins/
@@ -187,6 +187,9 @@ Models that belong to a feature must live in `app/Models/<Module>/`. Never place
 **Requirements:**
 - Every model **must have a `$fillable` array** listing all mass-assignable columns (except `id`)
 - Every model **must have a corresponding factory** in `database/factories/FeatureName/ModelNameFactory.php`
+- Every model **must define a `$rules` array** for validation
+- Every model **must use the `ValidatesOnSave` trait**
+- Every model **must include a phpdoc block with `@property` tags** so phpstan can understand the model fields and relations
 - Every model **must cast columns** appropriately:
   - Boolean columns: `'is_active' => 'boolean'`
   - Enum columns: `'status' => StatusEnum::class`
@@ -199,11 +202,34 @@ Models that belong to a feature must live in `app/Models/<Module>/`. Never place
 **Example:**
 ```php
 // app/Models/UnifiedCalendar/WorkSchedule.php
+
+use App\Models\Traits\ValidatesOnSave;
+use App\Models\User;
+use Database\Factories\UnifiedCalendar\WorkScheduleFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+/**
+ * @property int $id
+ * @property string $uuid
+ * @property int|null $account_id
+ * @property int $user_id
+ * @property int|null $schedule_layer_id
+ * @property int $weekday
+ * @property string $starts_time
+ * @property string $ends_time
+ * @property string|null $title
+ * @property string|null $notes
+ * @property-read ScheduleLayer|null $layer
+ * @property-read User $user
+ */
 class WorkSchedule extends Model
 {
-    use HasFactory;
+    /** @use HasFactory<WorkScheduleFactory> */
+    use HasFactory, ValidatesOnSave;
 
-    protected $table = 'ucal_work_schedules'; # only if model name is different from table name
+    protected $table = 'universal_calendar_work_schedules';
 
     protected $fillable = [
         'account_id',
@@ -224,7 +250,23 @@ class WorkSchedule extends Model
         'ends_time' => 'string',
     ];
 
-    // relationships, scopes, etc.
+    protected $rules = [
+        'account_id' => 'required|integer|exists:accounts,id',
+        'user_id' => 'nullable|integer|exists:users,id',
+        'schedule_layer_id' => 'nullable|integer|exists:universal_calendar_schedule_layers,id',
+        'weekday' => 'required|integer|between:1,7',
+        'starts_time' => 'required|string|date_format:H:i:s',
+        'ends_time' => 'required|string|date_format:H:i:s',
+        'title' => 'nullable|string|max:255',
+        'notes' => 'nullable|string|max:255',
+    ];
+
+    public function layer(): BelongsTo
+    {
+        return $this->belongsTo(ScheduleLayer::class, 'schedule_layer_id');
+    }
+
+    // other relationships, scopes, etc.
 }
 ```
 
