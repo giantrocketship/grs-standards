@@ -428,6 +428,115 @@ protected $signature = 'helpdesk:discovery:changes
 protected $signature = 'ticket-assign:explain {decision : Decision ID}';
 ```
 
+#### CLI Interactivity
+
+Commands must be **non-interactive by default**. Never prompt for confirmation with `$this->confirm()`, `$this->ask()`, or similar interactive prompts during normal execution.
+
+If a command performs a destructive or dangerous operation, protect it with a `--confirm` option instead of an interactive prompt:
+
+```php
+// WRONG: Interactive confirmation
+public function handle(): int
+{
+    if (! $this->confirm('Are you sure you want to delete this user?')) {
+        return self::FAILURE;
+    }
+    // ...
+}
+
+// CORRECT: Non-interactive with --confirm flag
+protected $signature = 'user:delete {user : The user ID} {--confirm : Actually perform the deletion}';
+
+public function handle(): int
+{
+    $user = User::findOrFail($this->argument('user'));
+
+    if (! $this->option('confirm')) {
+        $this->info("This would delete user {$user->username} (id:{$user->id}). Use --confirm to perform the deletion.");
+        return self::SUCCESS;
+    }
+
+    $user->delete();
+    $this->info("User {$user->username} (id:{$user->id}) deleted.");
+    return self::SUCCESS;
+}
+```
+
+This pattern ensures commands are scriptable and can be safely used in pipelines, cron jobs, and automation without hanging on interactive prompts.
+
+#### CLI Output
+
+All command options must use **kebab-case** (e.g., `--id-only`, `--dry-run`), never camelCase (`--idOnly`) or snake_case (`--id_only`).
+
+**Table output** must follow Laravel's built-in `$this->table()` pattern. When a command produces table output, always include these options:
+
+| Option       | Description                                                                 |
+|--------------|-----------------------------------------------------------------------------|
+| `--json`     | Output as JSON instead of a table                                           |
+| `--limit=`   | Limit the number of rows displayed                                          |
+| `--id-only`  | Print only IDs with no header (one per line, suitable for piping to scripts)|
+
+The `--id-only` option applies when the output rows represent database records. It prints raw IDs with no table formatting, so the output can drive other commands (e.g., `artisan user:list --id-only | xargs -I{} artisan user:sync {}`).
+
+**Column ordering** for table output must follow this sequence:
+
+1. `id` (database primary key) — always first
+2. `created_at`
+3. `account_id` (if applicable)
+4. `user_id` (if applicable)
+5. All other fields in logical order
+
+Be selective with columns — only show fields relevant to the command's purpose. Do not dump every database column into the table.
+
+**Example:**
+```php
+protected $signature = 'user:list
+    {account : The account ID}
+    {--json : Output as JSON}
+    {--limit= : Limit the number of rows}
+    {--id-only : Print only user IDs (no header)}';
+
+public function handle(): int
+{
+    $query = User::where('account_id', $this->argument('account'));
+
+    if ($limit = $this->option('limit')) {
+        $query->limit((int) $limit);
+    }
+
+    $users = $query->get();
+
+    if ($this->option('id-only')) {
+        $users->each(fn (User $user) => $this->line($user->id));
+        return self::SUCCESS;
+    }
+
+    if ($this->option('json')) {
+        $this->line($users->map(fn (User $user) => [
+            'id' => $user->id,
+            'created_at' => $user->created_at->toIso8601String(),
+            'account_id' => $user->account_id,
+            'username' => $user->username,
+            'email' => $user->email,
+        ])->toJson(JSON_PRETTY_PRINT));
+        return self::SUCCESS;
+    }
+
+    $this->table(
+        ['ID', 'Created', 'Account', 'Username', 'Email'],
+        $users->map(fn (User $user) => [
+            $user->id,
+            $user->created_at->toDateTimeString(),
+            $user->account_id,
+            $user->username,
+            $user->email,
+        ]),
+    );
+
+    return self::SUCCESS;
+}
+```
+
 ### Contracts/Interfaces (`app/Services/<Module>/Contracts/`)
 
 - Use `Contract` suffix: `TriageRepositoryContract.php`
