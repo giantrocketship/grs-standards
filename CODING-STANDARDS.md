@@ -645,15 +645,15 @@ public function definition(): array
     return [
         'uuid' => Uuid::uuid4()->toString(),
         'name' => fake()->company(),
-        'psa_type' => fake()->randomElement(PsaType::cases()),
+        'helpdesk_type' => fake()->randomElement(HelpdeskType::cases()),
     ];
 }
 
 public function connectWise(): static
 {
     return $this->state(fn () => [
-        'psa_type' => PsaType::ConnectWise,
-        'psa_creds' => [
+        'helpdesk_type' => HelpdeskType::ConnectWise,
+        'helpdesk_creds' => [
             'company_id' => config('services.connectwise.test.company_id'),
         ],
     ]);
