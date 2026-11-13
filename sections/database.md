@@ -114,6 +114,8 @@ Rules:
 - If you must name an index manually, follow Laravel's pattern: `{table}_{column1}_{column2}_{type}` where `{type}` is `index`, `unique`, or `foreign`
 - Do not use legacy index syntax
 
+A missing index or a slow query is fixed here, not with a cache around the query. See [Caching Specifications](./caching.md).
+
 ---
 
 ## Enums

@@ -34,6 +34,7 @@ Authoritative standards covering:
 
 - **Database design** — Table naming, foreign keys, indexes, and constraints
 - **Code structure** — Project organization, naming conventions, and architectural patterns
+- **Caching** — Last resort only; fix the code, query, or schema before adding a cache
 - **Dates & time handling** — Timezone management and temporal data practices
  - **Error handling** — Exceptions, logging, and failure behavior
 
@@ -45,6 +46,7 @@ All GRS developers must follow these specifications.
 2. Consult the relevant section when changing that area:
    - [Database](./sections/database.md)
    - [Code structure](./sections/code-structure.md)
+   - [Caching](./sections/caching.md)
    - [Dev/Docker setup](./sections/dev-setup.md)
    - [Dates & time](./sections/dates.md)
    - [Testing](./sections/testing.md)
@@ -57,6 +59,7 @@ All GRS developers must follow these specifications.
 - Avoid premature abstraction
 - Code must be production-ready, testable, and maintainable
 - Always consider Octane performance characteristics
+- **Caching is a last resort.** Do not add application caching (`Cache::remember`, query-result caching, memoized lookups, cache-aside, model caching packages) to hide slow code, missing indexes, N+1s, or inefficient queries — fix those first. See [Caching](./sections/caching.md).
  - Place **service-specific classes** (DTOs, contracts, actions, jobs, etc.)
     under `app/Services/<ServiceName>/...`; only **shared, cross-service classes**
     belong in roots like `app/DTOs`, `app/Contracts`, etc.

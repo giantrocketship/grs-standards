@@ -42,6 +42,10 @@ jobs:
                     echo
                     echo "---"
                     echo
+                    cat sections/caching.md
+                    echo
+                    echo "---"
+                    echo
                     cat sections/dates.md
                     echo
                     echo "---"

@@ -731,5 +731,6 @@ Before committing code:
 - [ ] Providers avoid singletons unless explicitly safe for Octane
 - [ ] Policies and observers mirror model nesting; policies include `account_id` checks
 - [ ] Eloquent used for queries; `DB::table()` only in migrations/seeders; `DB::transaction()` for transactions
+- [ ] No speculative application caching; slow code, N+1s, and missing indexes are fixed directly. See [Caching Specifications](./caching.md)
 - [ ] Errors fail loudly with no swallowed exceptions or misleading defaults
 - [ ] Factories use `fake()` with deterministic defaults; seeders are idempotent
